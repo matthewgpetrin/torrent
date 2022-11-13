@@ -1,4 +1,4 @@
-// Petrin and IFF Team 2022
+// Petrin 2022
 
 #ifndef IFF_COMMON_HH
 #define IFF_COMMON_HH

@@ -1,6 +1,4 @@
-//
-// Created by Matthew on 11/10/2022.
-//
+// Petrin 2022
 
 #ifndef IFF_RAY_HH
 #define IFF_RAY_HH
@@ -9,18 +7,20 @@
 #include "Surface.hh"
 
 class Ray {
-    // User Defined Variables ------------------------------------------------------------------------------------------
+    // User Passed Variables ------------------------------------------------------------------------------------------
     point origin;
     double angle;
-    double range;
 
     double frequency;
+    double power;
+    double mds; // Minimum detectable signal: https://en.wikipedia.org/wiki/Minimum_detectable_signal
 
-    // Auto Generated --------------------------------------------------------------------------------------------------
+    // Auto Generated Variables ----------------------------------------------------------------------------------------
+    double range;
     point terminus;
-    struct line line;
+    line ray; // Line representation of ray
 
-    // Reflection Ray Variables ----------------------------------------------------------------------------------------
+    // Reflected Ray Variables ----------------------------------------------------------------------------------------
     int reflectionIndex;
     Surface reflectionSurface;
 

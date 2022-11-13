@@ -1,6 +1,4 @@
-//
-// Created by Matthew on 11/12/2022.
-//
+// Petrin 2022
 
 #ifndef IFF_BEAM_HH
 #define IFF_BEAM_HH

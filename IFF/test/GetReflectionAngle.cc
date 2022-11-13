@@ -1,6 +1,4 @@
-//
-// Created by Matthew on 11/11/2022.
-//
+// Petrin 2022
 
 #include "../src/common.hh"
 
