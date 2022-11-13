@@ -24,17 +24,20 @@ double getAngleReflection(line signal, line surface) {
 }
 
 int main() {
-    line signal{{0, 1},
-                {3, 1}};
+    line signal{{0, 0},
+                {1, 1}};
 
-    line wall = {{3, 3},
-                 {0, 0}};
+    line wall = {{2, 0},
+                 {0, 2}};
 
     std::cout << "Wall Angle: " << getAngle(wall) << "\n";
     std::cout << "Signal Angle: " << getAngle(signal) << "\n";
 
     std::cout << "Between Angle: " << getAngleBetween(signal, wall) << "\n";
     std::cout << "Reflection Angle: " << getAngleReflection(signal, wall) << "\n";
+
+    std::cout << getIntersection(signal, wall).x << ", " << getIntersection(signal, wall).y;
+    std::cout << doIntersect(signal, wall);
 
     return 0;
 }
