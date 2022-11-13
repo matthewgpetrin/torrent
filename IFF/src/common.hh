@@ -1,10 +1,11 @@
 // Petrin 2022
-
+// This file contains non-member functions used by the IFF program, generally focusing on line-segment interaction
 #ifndef IFF_COMMON_HH
 #define IFF_COMMON_HH
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 // Degree macros for readability ---------------------------------------------------------------------------------------
 #define _360_DEGREES 2 * M_PI
@@ -124,6 +125,7 @@ bool doIntersect(line line0, line line1) {
 }
 
 // Returns the intersection of two line segments -----------------------------------------------------------------------
+// This is awkward and inefficient. Needs to be fixed eventually - Matt
 point getIntersection(line line0, line line1) {
     double m0 = (line0.point1.y - line0.point0.y) / (line0.point1.x - line0.point0.x);
     double m1 = (line1.point1.y - line1.point0.y) / (line1.point1.x - line1.point0.x);
