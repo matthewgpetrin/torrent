@@ -26,8 +26,9 @@ Ray::Ray(point &origin, double angle, double frequency, double power, double mds
 }
 
 // Copy Constructor ----------------------------------------------------------------------------------------------------
-Ray::Ray(const Ray &ray0) : origin(ray0.origin), angle(ray0.angle), frequency(ray0.frequency), power(ray0.power), mds
-        (ray0.mds), index(ray0.index), terminus(ray0.terminus), ray(ray0.ray), surface(ray0.surface) {}
+Ray::Ray(const Ray &ray0) :
+        origin(ray0.origin), angle(ray0.angle), frequency(ray0.frequency), power(ray0.power), mds(ray0.mds),
+        range(ray0.range), index(ray0.index), terminus(ray0.terminus), ray(ray0.ray), surface(ray0.surface) {}
 
 
 // Return path loss given distance -------------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ Ray Ray::getReflection(Surface surface) {
     double reflectionFrequency = this->frequency;
     double reflectionMds = this->mds;
     int reflectionIndex = this->index + 1;
-    std::cout << reflectionIndex;
+
     Surface reflectionSurface = surface; // This needs to be changed to a pointer in the future - Matt
 
     Ray reflection(reflectionOrigin, reflectionAngle, reflectionFrequency, reflectionPower, reflectionMds,
@@ -105,22 +106,20 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
     std::vector<Ray> reflections(1);
     // Loop through all input surfaces
 
-    bool reflected = false;
     for (int j = 0; j < surfaces.size(); j++) {
         // If ray intersects with a surface
-        if (doIntersect(this->ray, surfaces[j].getSurface())) {
+        // This if statement also stops it from intersecting with the surface it originated from
+        if (doIntersect(this->ray, surfaces[j].getSurface()) &&
+            getDistanceBetween(this->origin, getIntersection(this->ray, surfaces[j].getSurface())) > 0.001) {
 
             // Find point of intersection
             point i = getIntersection(this->ray, surfaces[j].getSurface());
 
             // If a point of intersection is closer than any others, it is the point of reflection
-            // This if statement also stops it from intersecting with the surface it originated from
-            if (getDistanceBetween(this->origin, i) < this->range && getDistanceBetween(this->origin, i) > 0.001) {
-
+            if (getDistanceBetween(this->origin, i) < this->range) {
                 // Redefine the range of the original ray
-                Ray::updateTerminus(i); // This needs to update range and vice versa - Matt
+                updateTerminus(i);
 
-                // Calculate reflected ray
                 Ray incident(*this);
                 Ray reflection(getReflection(surfaces[j]));
 
@@ -129,12 +128,10 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
                 reflections.push_back(incident);
                 reflections.push_back(reflection);
 
-                reflected = true;
-
                 // Recursively calls function until intersections no longer occur
                 reflection.getReflections(surfaces);
-            } else std::cout << "Surface not within range " << this->index << "\n";
-        } else std::cout << "No surfaces intersecting " << this->index << "\n";
+            } else std::cout << "\nSurface " << j << " is not within range of reflection " << this->index << "\n";
+        } else std::cout << "\nSurface " << j << " is not intersecting with reflection " << this->index << "\n";
     }
     /*
     std::cout << "\n ..... IM GONNA SCREAM ....." << this->index;
@@ -152,14 +149,13 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
     }*/
 
     // NOTE: Recursion is currently not working. All other values returning properly in comment above - Matt
-
     return reflections;
 }
 
 // Updates range and terminus ------------------------------------------------------------------------------------------
 void Ray::updateTerminus(point terminus) {
-    setTerminus(terminus);
-    setRange(getDistanceBetween(this->origin, this->terminus));
+    this->terminus = terminus;
+    this->range = getDistanceBetween(this->origin, this->terminus);
 }
 
 // Yuck ----------------------------------------------------------------------------------------------------------------

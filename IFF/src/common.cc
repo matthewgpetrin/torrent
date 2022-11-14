@@ -26,7 +26,7 @@ double normalizeAngle360(double angle) {
 }
 
 // Returns angle of line counterclockwise relative to the X axis -------------------------------------------------------
-double getAngle(line line)   {
+double getAngle(line line) {
     point p0 = line.point0;
     point p1 = line.point1;
 
@@ -43,7 +43,7 @@ double getAngleBetween(line line0, line line1) {
     double a0 = getAngle(line0);
     double a1 = getAngle(line1);
 
-    return normalizeAngle180(a1 - a0);
+    return normalizeAngle360(a1 - a0);
 }
 
 // Returns absolute distance between two points ------------------------------------------------------------------------
