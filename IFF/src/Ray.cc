@@ -133,8 +133,8 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
 
                 // Recursively calls function until intersections no longer occur
                 reflection.getReflections(surfaces);
-            }
-        }
+            } else std::cout << "Surface not within range " << this->index << "\n";
+        } else std::cout << "No surfaces intersecting " << this->index << "\n";
     }
     /*
     std::cout << "\n ..... IM GONNA SCREAM ....." << this->index;
@@ -151,7 +151,7 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
         std::cout << "power: " << reflections[i].power << "\n";
     }*/
 
-    // NOTE: Recursion is curently not working. All other values returning properly in comment above - Matt
+    // NOTE: Recursion is currently not working. All other values returning properly in comment above - Matt
 
     return reflections;
 }
