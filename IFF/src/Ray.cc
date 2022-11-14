@@ -92,6 +92,7 @@ Ray Ray::getReflection(Surface surface) {
     double reflectionFrequency = this->frequency;
     double reflectionMds = this->mds;
     int reflectionIndex = this->index + 1;
+    std::cout << "\nreflected index is now " << reflectionIndex;
 
     Surface reflectionSurface = surface; // This needs to be changed to a pointer in the future - Matt
 
@@ -105,8 +106,9 @@ Ray Ray::getReflection(Surface surface) {
 std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
     std::vector<Ray> reflections(1);
     // Loop through all input surfaces
-
+    bool reflected = false;
     for (int j = 0; j < surfaces.size(); j++) {
+        std::cout << "\nchecking reflection " << this->index << " against surface " << j << "\n";
         // If ray intersects with a surface
         // This if statement also stops it from intersecting with the surface it originated from
         if (doIntersect(this->ray, surfaces[j].getSurface()) &&
@@ -128,6 +130,7 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
                 reflections.push_back(incident);
                 reflections.push_back(reflection);
 
+                reflected = true;
                 // Recursively calls function until intersections no longer occur
                 reflection.getReflections(surfaces);
             } else std::cout << "\nSurface " << j << " is not within range of reflection " << this->index << "\n";
@@ -148,7 +151,13 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
         std::cout << "power: " << reflections[i].power << "\n";
     }*/
 
+    if (!reflected) {
+        Ray loser(*this);
+        reflections.push_back(loser);
+        std::cout << "\nWALLAH reflection " << this->index << " failed to reflect" << "\n";
+    }
     // NOTE: Recursion is currently not working. All other values returning properly in comment above - Matt
+    // The function is actually registering the 2nd reflection, but does not return in for some reason
     return reflections;
 }
 
