@@ -16,6 +16,8 @@ private:
 
 public:
     // Constructors ----------------------------------------------------------------------------------------------------
+    Surface();
+
     Surface(const line &surface, double reflectivity);
 
     Surface(const point &point0, const point &point1, double reflectivity);

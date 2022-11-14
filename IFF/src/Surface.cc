@@ -3,11 +3,13 @@
 #include "Surface.hh"
 
 // Constructors --------------------------------------------------------------------------------------------------------
+Surface::Surface() : surface({0, 0, 0, 0}), reflectivity(0) {}
+
 Surface::Surface(const line &surface, double reflectivity) :
-surface(surface), reflectivity(reflectivity), point0(surface.point0), point1(surface.point1) {}
+        surface(surface), reflectivity(reflectivity), point0(surface.point0), point1(surface.point1) {}
 
 Surface::Surface(const point &point0, const point &point1, double reflectivity) :
-point0(point0), point1(point1), reflectivity(reflectivity), surface({point0, point1}) {}
+        point0(point0), point1(point1), reflectivity(reflectivity), surface({point0, point1}) {}
 
 
 // Getters and Setters -------------------------------------------------------------------------------------------------
