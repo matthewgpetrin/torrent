@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "Surface.hh"
+#include "../include/Surface.hh"
 
 // Constructors --------------------------------------------------------------------------------------------------------
 Surface::Surface() : surface({0, 0, 0, 0}), reflectivity(0) {}

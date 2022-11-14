@@ -45,11 +45,7 @@ double getDistanceBetween(point point0, point point1);
 // NOTE: Code is taken from https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
 bool isOnSegment(point p, point q, point r);
 
-// Returns getOrientation of a line segment -------------------------------------------------------------------------------
-// NOTE: Code is taken from https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-// 0 --> Collinear
-// 1 --> Clockwise
-// 2 --> Counterclockwise
+// Returns getOrientation of a line segment ----------------------------------------------------------------------------
 int getOrientation(point p, point q, point r);
 
 // Returns if two line segments intersect ------------------------------------------------------------------------------

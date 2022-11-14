@@ -1,3 +1,3 @@
 // Petrin 2022
 
-#include "Beam.hh"
+#include "../include/Beam.hh"

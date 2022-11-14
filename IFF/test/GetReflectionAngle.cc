@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "../src/common.hh"
+#include "../include/common.hh"
 
 double getAngleReflection(line signal, line surface) {
     double angleOfSignal = getAngle(signal);

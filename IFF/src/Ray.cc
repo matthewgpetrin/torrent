@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "Ray.hh"
+#include "../include/Ray.hh"
 
 // Default Constructor -------------------------------------------------------------------------------------------------
 Ray::Ray() : origin(), angle(), frequency(), power(), mds(), range(), terminus(), ray(), index(), surface() {}
@@ -33,12 +33,12 @@ double Ray::getPathLoss(double distance) {
 
 // Return power level given distance -----------------------------------------------------------------------------------
 double Ray::getPowerAtDistance(double distance) {
-    return this->power - getPathLoss(distance);
+    return this->power / getPathLoss(distance);
 }
 
 // Return distance given power level -----------------------------------------------------------------------------------
 double Ray::getDistanceAtPower(double power) {
-    return LIGHTSPEED * sqrt(power) / (4 * M_PI * this->frequency);
+    return LIGHTSPEED * sqrt(this->power / power) / (4 * M_PI * this->frequency);
 }
 
 // Return origin of reflected ray --------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "common.hh"
+#include "../include/common.hh"
 
 // Degree macros for readability ---------------------------------------------------------------------------------------
 #define _360_DEGREES 2 * M_PI
@@ -26,7 +26,7 @@ double normalizeAngle360(double angle) {
 }
 
 // Returns angle of line counterclockwise relative to the X axis -------------------------------------------------------
-double getAngle(line line) {
+double getAngle(line line)   {
     point p0 = line.point0;
     point p1 = line.point1;
 

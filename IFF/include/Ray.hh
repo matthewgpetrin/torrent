@@ -3,7 +3,7 @@
 #ifndef IFF_RAY_HH
 #define IFF_RAY_HH
 
-#define LIGHTSPEED 3 * pow(10, 8)
+#define LIGHTSPEED 299792458
 
 #include <utility>
 #include "common.hh"
@@ -31,7 +31,7 @@ class Ray {
 public:
     Ray();
 
-    Ray(point &origin_, double angle_, double frequency_, double power_, double mds_);
+    Ray(point &origin_, double angle, double frequency, double power, double mds);
 
     Ray(point &origin, double angle, double frequency, double power, double mds, int index, Surface surface);
 

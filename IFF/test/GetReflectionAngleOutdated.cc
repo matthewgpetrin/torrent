@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <iostream>
-#include "../src/common.hh"
+#include "../include/common.hh"
 #include <iomanip>
 
 #define _360_DEGREES 2 * M_PI
