@@ -31,7 +31,7 @@ class Ray {
 public:
     Ray();
 
-    Ray(point &origin_, double angle, double frequency, double power, double mds);
+    Ray(point &origin, double angle, double frequency, double power, double mds);
 
     Ray(point &origin, double angle, double frequency, double power, double mds, int index, Surface surface);
 

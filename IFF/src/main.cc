@@ -15,7 +15,7 @@ int main() {
     std::vector<Surface> walls{wall1, wall2};
 
     point o = {0, 0.5};
-    Ray sig(o, 30, 2400000000, 10, 0);
+    Ray sig(o, 0, 2400000000, 10, 0.00001);
 
     std::cout << sig.getPower();
     std::cout << sig.getAngle1();

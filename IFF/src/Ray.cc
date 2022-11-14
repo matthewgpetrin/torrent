@@ -25,6 +25,11 @@ Ray::Ray(point &origin, double angle, double frequency, double power, double mds
     this->ray = {origin, terminus};
 }
 
+// Copy Constructor ----------------------------------------------------------------------------------------------------
+Ray::Ray(const Ray &ray0) : origin(ray0.origin), angle(ray0.angle), frequency(ray0.frequency), power(ray0.power), mds
+        (ray0.mds), index(ray0.index), terminus(ray0.terminus), ray(ray0.ray), surface(ray0.surface) {}
+
+
 // Return path loss given distance -------------------------------------------------------------------------------------
 // See https://en.wikipedia.org/wiki/Free-space_path_loss
 double Ray::getPathLoss(double distance) {
@@ -166,12 +171,13 @@ std::vector<Ray> Ray::getReflectionsLines(std::vector<Surface> surfaces) {
     return reflections;
 }
 */
+
 // Yuck ----------------------------------------------------------------------------------------------------------------
 const point &Ray::getOrigin() const {
     return origin;
 }
 
-const double Ray::getAngle1() const {
+const double Ray::getAngle() const {
     return angle;
 }
 
@@ -221,9 +227,6 @@ const Surface &Ray::getSurface() const {
 }
 
 //--------------------------------------------------------------------
-
-Ray::Ray(const Ray &ray0) : origin(ray0.origin), angle(ray0.angle), frequency(ray0.frequency), power(ray0.power), mds
-        (ray0.mds), index(ray0.index), terminus(ray0.terminus), ray(ray0.ray), surface(ray0.surface) {}
 
 Ray &Ray::operator=(const Ray &ray0) {
     origin = ray0.origin;
