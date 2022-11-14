@@ -53,8 +53,8 @@ point Ray::getReflectionOrigin(Surface surface) {
 
 // Return angle of reflected ray ---------------------------------------------------------------------------------------
 double Ray::getReflectionAngle(Surface surface) {
-    double angleOfSignal = getAngle(this->ray);
-    double angleOfSurface = normalizeAngle180(getAngle(surface.getSurface()));
+    double angleOfSignal = this->angle;
+    double angleOfSurface = ::getAngle(surface.getSurface());
     double angleOfIntersection = getAngleBetween(this->ray, surface.getSurface());// This is NOT the angle of incidence
 
     double angleOfReflection;
@@ -90,7 +90,8 @@ Ray Ray::getReflection(Surface surface) {
     // Unchanged/simple variables
     double reflectionFrequency = this->frequency;
     double reflectionMds = this->mds;
-    int reflectionIndex = this->index++;
+    int reflectionIndex = this->index + 1;
+    std::cout << reflectionIndex;
     Surface reflectionSurface = surface; // This needs to be changed to a pointer in the future - Matt
 
     Ray reflection(reflectionOrigin, reflectionAngle, reflectionFrequency, reflectionPower, reflectionMds,
@@ -101,76 +102,65 @@ Ray Ray::getReflection(Surface surface) {
 
 // Return all reflected rays given all surfaces ------------------------------------------------------------------------
 std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
-    std::vector<Ray> reflections;
+    std::vector<Ray> reflections(1);
     // Loop through all input surfaces
+
+    bool reflected = false;
     for (int j = 0; j < surfaces.size(); j++) {
         // If ray intersects with a surface
         if (doIntersect(this->ray, surfaces[j].getSurface())) {
+
             // Find point of intersection
             point i = getIntersection(this->ray, surfaces[j].getSurface());
 
             // If a point of intersection is closer than any others, it is the point of reflection
             // This if statement also stops it from intersecting with the surface it originated from
             if (getDistanceBetween(this->origin, i) < this->range && getDistanceBetween(this->origin, i) > 0.001) {
+
                 // Redefine the range of the original ray
-                Ray::setTerminus(i); // This needs to update range and vice versa - Matt
+                Ray::updateTerminus(i); // This needs to update range and vice versa - Matt
 
                 // Calculate reflected ray
+                Ray incident(*this);
                 Ray reflection(getReflection(surfaces[j]));
-                //Ray original(this->origin,this->);
 
-                // Updates original ray in array of rays
-                Ray &old = reflections[this->index];
-                old = reflection;
-                reflections[this->index] = Ray(reflection); // Not sure how to correct this - Matt
-                // Adds reflected ray to array of rays
+                // Updates and add rays to reflections vector
+                reflections.pop_back();
+                reflections.push_back(incident);
                 reflections.push_back(reflection);
+
+                reflected = true;
 
                 // Recursively calls function until intersections no longer occur
                 reflection.getReflections(surfaces);
             }
         }
     }
-    return reflections;
-}
+    /*
+    std::cout << "\n ..... IM GONNA SCREAM ....." << this->index;
+    if (reflected)
+        reflections[this->index + 1].getReflections(surfaces);
+    std::cout << "\n ..... reflected: " << reflected << "\n";
 /*
-// Return all reflected rays as lines given all surfaces ---------------------------------------------------------------
-std::vector<Ray> Ray::getReflectionsLines(std::vector<Surface> surfaces) {
-    // Initialize vector to return
-    std::vector<Ray> reflections;
-    // Loop through all input surfaces
-    for (int j = 0; j < surfaces.size(); j++) {
-        // If ray intersects with a surface
-        if (doIntersect(this->ray, surfaces[j].getSurface())) {
-            // Find point of intersection
-            point i = getIntersection(this->ray, surfaces[j].getSurface());
+    std::cout << "size: " << reflections.size();
+    for (int i = 0; i < reflections.size(); i++) {
+        std::cout << "\n REFLECTION #" << i << "\n";
+        std::cout << "origin: " << reflections[i].origin.x;
+        std::cout << ", " << reflections[i].origin.y << "\n";
+        std::cout << "angle: " << reflections[i].angle << "\n";
+        std::cout << "power: " << reflections[i].power << "\n";
+    }*/
 
-            // If a point of intersection is closer than any others, it is the point of reflection
-            // This if statement also stops it from intersecting with the surface it originated from
-            if (getDistanceBetween(this->origin, i) < this->range && getDistanceBetween(this->origin, i) > 0.001) {
-                // Redefine the range of the original ray
-                Ray::setTerminus(i); // This needs to update range and vice versa - Matt
+    // NOTE: Recursion is curently not working. All other values returning properly in comment above - Matt
 
-                // Calculate reflected ray
-                //Ray reflection();
-                //getReflection(surfaces[j]);
-
-                // Updates original ray in array of rays
-                //reflections[this->index] = *this; //
-                // Not
-                // sure how to correct this -
-                // Matt
-                // Adds reflected ray to array of rays
-                reflections.push_back(getReflection(surfaces[j]));
-
-                // Recursively calls function until intersections no longer occur
-                reflections[this->index++].getReflectionsLines(surfaces);
-            }
-        }
-    }
     return reflections;
 }
-*/
+
+// Updates range and terminus ------------------------------------------------------------------------------------------
+void Ray::updateTerminus(point terminus) {
+    setTerminus(terminus);
+    setRange(getDistanceBetween(this->origin, this->terminus));
+}
 
 // Yuck ----------------------------------------------------------------------------------------------------------------
 const point &Ray::getOrigin() const {
@@ -207,7 +197,6 @@ const point &Ray::getTerminus() const {
 
 void Ray::setTerminus(const point &terminus) {
     Ray::terminus = terminus;
-    setRange(getDistanceBetween(this->origin, this->terminus));
 }
 
 const line Ray::getRay() const {
@@ -226,25 +215,5 @@ const Surface &Ray::getSurface() const {
     return surface;
 }
 
-//--------------------------------------------------------------------
-
-Ray &Ray::operator=(const Ray &ray0) {
-    origin = ray0.origin;
-    angle = ray0.angle;
-
-    frequency;
-    power = ray0.power;
-    mds = ray0.mds; // Minimum detectable signal: https://en.wikipedia.org/wiki/Minimum_detectable_signal
-
-    // Auto Generated Variables ----------------------------------------------------------------------------------------
-    range = ray0.range;
-    terminus = ray0.terminus;
-    ray = ray0.ray; // Line representation of ray
-
-    // Reflected Ray Variables ----------------------------------------------------------------------------------------
-    index = ray0.index;
-
-    return *this;
-}
 
 

@@ -57,13 +57,13 @@ public:
     Ray getReflection(Surface surface);
 
     std::vector<Ray> getReflections(std::vector<Surface> &surfaces);
-
-    std::vector<Ray> getReflectionsLines(std::vector<Surface> surfaces);
+    
+    void updateTerminus(point point);
 
 public:
     const point &getOrigin() const;
 
-    const double getAngle1() const;
+    const double getAngle() const;
 
     const double getFrequency() const;
 
@@ -86,6 +86,7 @@ public:
     const int getIndex() const;
 
     const Surface &getSurface() const;
+
 };
 
 #endif //IFF_RAY_HH
