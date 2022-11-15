@@ -1,5 +1,7 @@
 // Testing getReflections
 
+
+#include <graphics.h>
 #include "../include/Ray.hh"
 
 int main() {
@@ -16,10 +18,12 @@ int main() {
 
     // Define signal ray
     point o = {0, 0.5};
-    Ray sig(o, 0, 2400000000, 10000000000000000, 0.00001);
+    Ray sig(o, 0, 1000000000, 10000000000000000, 0.00001);
 
+    std::cout << "range: " << sig.getRange() << "\n";
     // Reflections
     std::vector<Ray> refs = sig.getReflections(walls);
+
 
     for (int i = 0; i < refs.size(); i++) {
         std::cout << "\nREFLECTION #" << refs[i].getIndex() << "\n";

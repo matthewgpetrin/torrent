@@ -92,7 +92,7 @@ Ray Ray::getReflection(Surface surface) {
     double reflectionFrequency = this->frequency;
     double reflectionMds = this->mds;
     int reflectionIndex = this->index + 1;
-    std::cout << "\nreflected index is now " << reflectionIndex;
+    //std::cout << "reflected index is now " << reflectionIndex << "\n";
 
     Surface reflectionSurface = surface; // This needs to be changed to a pointer in the future - Matt
 
