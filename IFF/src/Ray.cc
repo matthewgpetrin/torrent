@@ -67,8 +67,8 @@ double Ray::getReflectionAngle(Surface surface) {
                 if (angleOfSignal < _90_DEGREES) {
                     angleOfReflection = angleOfSurface + angleOfIntersection;
                 } else angleOfReflection = angleOfSurface - angleOfIntersection;
-            } else angleOfReflection = M_PI + angleOfSurface + angleOfIntersection;
-        } else angleOfReflection = M_PI + angleOfSurface - angleOfIntersection;
+            } else angleOfReflection = angleOfSurface + angleOfIntersection;
+        } else angleOfReflection = angleOfSurface - angleOfIntersection;
     } else throw "ERROR: Angle of ray is greater than 2 * PI"; // Error thrown in case angle of ray is > 360 degrees
 
     return normalizeAngle360(angleOfReflection);
@@ -104,19 +104,15 @@ Ray Ray::getReflection(Surface surface) {
 
 // Return all reflected rays given all surfaces ------------------------------------------------------------------------
 std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
-    std::vector<Ray> reflections(1);
+    std::vector<Ray> reflections{*this};
     // Loop through all input surfaces
-    bool reflected = false;
     for (int j = 0; j < surfaces.size(); j++) {
-        std::cout << "\nchecking reflection " << this->index << " against surface " << j << "\n";
         // If ray intersects with a surface
-        // This if statement also stops it from intersecting with the surface it originated from
         if (doIntersect(this->ray, surfaces[j].getSurface()) &&
+            // This if statement also stops it from intersecting with the surface it originated from - Needs to be corrected
             getDistanceBetween(this->origin, getIntersection(this->ray, surfaces[j].getSurface())) > 0.001) {
-
             // Find point of intersection
             point i = getIntersection(this->ray, surfaces[j].getSurface());
-
             // If a point of intersection is closer than any others, it is the point of reflection
             if (getDistanceBetween(this->origin, i) < this->range) {
                 // Redefine the range of the original ray
@@ -130,34 +126,44 @@ std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces) {
                 reflections.push_back(incident);
                 reflections.push_back(reflection);
 
-                reflected = true;
                 // Recursively calls function until intersections no longer occur
-                reflection.getReflections(surfaces);
-            } else std::cout << "\nSurface " << j << " is not within range of reflection " << this->index << "\n";
-        } else std::cout << "\nSurface " << j << " is not intersecting with reflection " << this->index << "\n";
+                reflection.getReflections(surfaces, reflections);
+            }
+        }
     }
-    /*
-    std::cout << "\n ..... IM GONNA SCREAM ....." << this->index;
-    if (reflected)
-        reflections[this->index + 1].getReflections(surfaces);
-    std::cout << "\n ..... reflected: " << reflected << "\n";
-/*
-    std::cout << "size: " << reflections.size();
-    for (int i = 0; i < reflections.size(); i++) {
-        std::cout << "\n REFLECTION #" << i << "\n";
-        std::cout << "origin: " << reflections[i].origin.x;
-        std::cout << ", " << reflections[i].origin.y << "\n";
-        std::cout << "angle: " << reflections[i].angle << "\n";
-        std::cout << "power: " << reflections[i].power << "\n";
-    }*/
 
-    if (!reflected) {
-        Ray loser(*this);
-        reflections.push_back(loser);
-        std::cout << "\nWALLAH reflection " << this->index << " failed to reflect" << "\n";
+    return reflections;
+}
+
+// Overloaded for recursive calls --------------------------------------------------------------------------------------
+std::vector<Ray> Ray::getReflections(std::vector<Surface> &surfaces, std::vector<Ray> &reflections) {
+    // Loop through all input surfaces
+    for (int j = 0; j < surfaces.size(); j++) {
+        // If ray intersects with a surface
+        if (doIntersect(this->ray, surfaces[j].getSurface()) &&
+            // This if statement also stops it from intersecting with the surface it originated from - Needs to be corrected
+            getDistanceBetween(this->origin, getIntersection(this->ray, surfaces[j].getSurface())) > 0.001) {
+            // Find point of intersection
+            point i = getIntersection(this->ray, surfaces[j].getSurface());
+            // If a point of intersection is closer than any others, it is the point of reflection
+            if (getDistanceBetween(this->origin, i) < this->range) {
+                // Redefine the range of the original ray
+                updateTerminus(i);
+
+                Ray incident(*this);
+                Ray reflection(getReflection(surfaces[j]));
+
+                // Updates and add rays to reflections vector
+                reflections.pop_back();
+                reflections.push_back(incident);
+                reflections.push_back(reflection);
+
+                // Recursively calls function until intersections no longer occur
+                reflection.getReflections(surfaces, reflections);
+            }
+        }
     }
-    // NOTE: Recursion is currently not working. All other values returning properly in comment above - Matt
-    // The function is actually registering the 2nd reflection, but does not return in for some reason
+
     return reflections;
 }
 
@@ -219,6 +225,3 @@ const int Ray::getIndex() const {
 const Surface &Ray::getSurface() const {
     return surface;
 }
-
-
-

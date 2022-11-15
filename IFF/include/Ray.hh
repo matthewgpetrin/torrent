@@ -24,7 +24,7 @@ class Ray {
     point terminus;
     line ray; // Line representation of ray
 
-    // Reflected Ray Variables ----------------------------------------------------------------------------------------
+    // Reflected Ray Variables -----------------------------------------------------------------------------------------
     int index;
     const Surface surface;
 
@@ -36,8 +36,6 @@ public:
     Ray(point &origin, double angle, double frequency, double power, double mds, int index, Surface surface);
 
     Ray(const Ray &ray);
-
-    Ray &operator=(const Ray &ray0);
 
 public:
     double getPathLoss(double distance);
@@ -57,7 +55,9 @@ public:
     Ray getReflection(Surface surface);
 
     std::vector<Ray> getReflections(std::vector<Surface> &surfaces);
-    
+
+    std::vector<Ray> getReflections(std::vector<Surface> &surfaces, std::vector<Ray> &reflections);
+
     void updateTerminus(point point);
 
 public:
@@ -86,7 +86,6 @@ public:
     const int getIndex() const;
 
     const Surface &getSurface() const;
-
 };
 
 #endif //IFF_RAY_HH
