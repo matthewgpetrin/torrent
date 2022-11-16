@@ -1,7 +1,5 @@
 // Testing getReflections
 
-
-#include <graphics.h>
 #include "../include/Ray.hh"
 
 int main() {

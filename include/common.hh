@@ -12,6 +12,7 @@
 #define _270_DEGREES 3 * M_PI / 2
 #define _180_DEGREES M_PI
 #define _90_DEGREES  M_PI / 2
+#define PI M_PI
 
 // Point definition ----------------------------------------------------------------------------------------------------
 struct point {
