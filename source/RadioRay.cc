@@ -1,6 +1,4 @@
-//
-// Created by Omerange on 11/16/2022.
-//
+// Petrin 2022
 
 #include "../include/RadioRay.hh"
 
@@ -82,9 +80,7 @@ point RadioRay::reflectionTerminus(Surface surface) {
 double RadioRay::reflectionAngle(Surface surface) {
     line ray = {points[points.size() - 2], points.back()};
     double surfaceAngle = ::getAngle(surface.getSurface());
-    std::cout << "sur " << surfaceAngle << "\n";
     double incidentAngle = ::getAngle(ray);
-    std::cout << "inc " << incidentAngle << "\n";
     double intersectAngle = getAngleBetween(ray, surface.getSurface());// This is NOT the angle of incidence
 
     double reflectionAngle;
@@ -100,7 +96,6 @@ double RadioRay::reflectionAngle(Surface surface) {
         } else reflectionAngle = surfaceAngle - intersectAngle;
     } else throw "ERROR: Angle of ray is greater than 2 * PI"; // Error thrown in case angle of ray is > 360 degrees
 
-    std::cout << "angle " << normalizeAngle360(reflectionAngle) << "\n";
     return normalizeAngle360(reflectionAngle);
 }
 

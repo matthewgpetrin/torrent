@@ -1,6 +1,4 @@
-//
-// Created by Omerange on 11/16/2022.
-//
+// Petrin 2022
 
 #ifndef IFF_RADIORAY_HH
 #define IFF_RADIORAY_HH
