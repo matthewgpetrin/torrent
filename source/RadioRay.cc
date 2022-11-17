@@ -101,11 +101,18 @@ double RadioRay::reflectionAngle(Surface surface) {
 
 // Returns the ray of a reflection given a surface ---------------------------------------------------------------------
 double RadioRay::reflectionRange(Surface surface) {
-    double mileage = 0;
-    for (int i = 0; i < this->points.size(); i++)
-        mileage += getDistanceBetween(points[i], points[i + 1]);
+    double mileage = this->mileage();
     double effectivePower = reflectance * this->power;
+
     return distanceAtPower(effectivePower, mds) - mileage;
+}
+
+double RadioRay::mileage(){
+    double mileage = 0;
+    for (int i = 0; i < this->points.size() - 1; i++)
+        mileage += getDistanceBetween(points[i], points[i + 1]);
+
+    return mileage;
 }
 
 // Returns the distance between two power levels ----------------------------------------------------------------------

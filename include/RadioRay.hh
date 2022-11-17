@@ -69,6 +69,8 @@ public:
     const std::vector<point> &getPoints() const;
 
     void setPoints(const std::vector<point> &points);
+
+    double mileage();
 };
 
 
