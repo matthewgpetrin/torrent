@@ -1,9 +1,11 @@
 addpath ../include/;
 
+clearMap(siteviewer);
 
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
 frequency = 2.4e9;
+
 
 % Show antenna properties as figures --------------------------------------
 figure("Name", "Physical Design")

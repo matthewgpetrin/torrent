@@ -33,5 +33,5 @@ antenna = yagiUda("Exciter", exciter, 'NumDirectors', 18, ...
                   "ReflectorLength", reflectorLength*10^-3, ...
                   "ReflectorSpacing", reflectorSpace*10^-3);
 
-antenna.TiltAxis ='Z'; 
-antenna.Tilt = 90; % Aligns the antenna with the ground
+antenna.Tilt = 90;
+antenna.TiltAxis = [0 1 0];
