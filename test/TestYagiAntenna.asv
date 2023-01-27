@@ -1,11 +1,21 @@
 addpath ../include/;
 
+antenna = YagiAntenna;
+frequency = 2.4e9;
+
 % Show antenna properties as figures --------------------------------------
-%show(yagi); % Uncomment to see physical design
-%show(exciter); % Uncomment to see exciter design
-%pattern(yagi, frequency); % Uncomment to see emmision spectrum
-%patternAzimuth(yagi, frequency); % Uncomment to see emmision on Azimuth
-%patternElevation(yagi, frequency); % Uncomment to see emmision on Elevation
+figure("Name", "Physical Design")
+show(antenna); % Uncomment to see physical design
+
+figure("Nname", "Exciter Design")
+show(antenna.exciter); % Uncomment to see exciter design
+
+figure("Name", "Emission Pattern")
+pattern(antenna, frequency);
+
+figure("Name", "Azimuth Emission Pattern")
+patternAzimuth(antenna, frequency); % Uncomment to see emmision on Azimuth
+patternElevation(antenna, frequency); % Uncomment to see emmision on Elevation
 
 % Show power spectrum on map ----------------------------------------------
 tx = txsite("Name","Transmitter", ...
