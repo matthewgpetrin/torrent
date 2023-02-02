@@ -24,8 +24,11 @@ coverageData = coverage(tx, ...
 
 % Display data on map -----------------------------------------------------
 show(tx);
-plot(coverageData);
 pattern(tx);
+plot(coverageData);
 
+% Convert to table and write to txt file ----------------------------------
+table(coverageData.Data);
+writetable(coverageData.Data, 'coverage.txt');
 
 rmpath ../include/;
