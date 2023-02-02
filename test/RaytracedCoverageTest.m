@@ -4,10 +4,6 @@ addpath ../include/;
 antenna = YagiAntenna;
 frequency = 2.4e9;
 
-
-antenna.TiltAxis = 'X';
-antenna.Tilt = 0;
-
 reflections = 2;
 terrainMaterial = "concrete";
 buildingMaterial = "concrete";
