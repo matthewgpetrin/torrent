@@ -1,10 +1,11 @@
 addpath ../include/;
+addpath ../source/;
 
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
 frequency = 2.4e9;
 
-reflections = 2;
+reflections = 1;
 terrainMaterial = "concrete";
 buildingMaterial = "concrete";
 
@@ -36,5 +37,14 @@ coverageDataRaytraced = coverage(tx, rt, ...
 
 show(tx);
 
-plot(coverageDataRaytraced - coverageData);
+powers = coverageData.Data.Power;
+powersRaytraced = coverageDataRaytraced.Data.Power;
 
+watts = dBmToWatts(powersRaytraced) - dBmToWatts(powers);
+coverageData.Data.Power = WattsTodBm(watts);
+
+writetable(coverageData.Data, 'coverage.txt');
+plot(propagationData(coverageData));
+
+rmpath ../source/;
+rmpath ../include/;
