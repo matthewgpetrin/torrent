@@ -1,10 +1,12 @@
 addpath ../include/;
 
+clearMap(siteviewer);
+
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
 frequency = 2.4e9;
 
-reflections = 2;
+reflections = 1;
 terrainMaterial = "concrete";
 buildingMaterial = "concrete";
 
@@ -15,7 +17,7 @@ tx = txsite("Name","Transmitter", ...
             "Latitude", 40.745589, ...
             "Longitude", -74.024837, ...
             "AntennaHeight", 1, ...
-            "TransmitterPower", 5, ...
+            "TransmitterPower", 0.1, ...
             "TransmitterFrequency", 2.4e9);
 show(tx)
 

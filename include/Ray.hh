@@ -6,7 +6,7 @@
 #define LIGHTSPEED 299792458
 
 #include <utility>
-#include "common.hh"
+#include "Common.hh"
 #include "Surface.hh"
 
 class Ray {
