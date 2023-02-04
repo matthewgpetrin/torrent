@@ -3,7 +3,7 @@
 #ifndef IFF_SURFACE_HH
 #define IFF_SURFACE_HH
 
-#include "common.hh"
+#include "Common.hh"
 
 class Surface {
 private:

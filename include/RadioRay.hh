@@ -6,7 +6,7 @@
 #define PI M_PI
 #define LIGHTSPEED (3 * pow(10, 8))
 
-#include "common.hh"
+#include "Common.hh"
 #include "Surface.hh"
 
 class RadioRay {

@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "../include/common.hh"
+#include "../include/Common.hh"
 
 // Degree macros for readability ---------------------------------------------------------------------------------------
 #define _360_DEGREES 2 * M_PI
