@@ -11,8 +11,6 @@ reflections = 1;
 terrainMaterial = "concrete";
 buildingMaterial = "concrete";
 
-viewer = siteviewer("Buildings","stevens.osm","Basemap","topographic");
-
 % Define transmission site ------------------------------------------------
 tx = txsite("Name","Transmitter", ...
             "Antenna", antenna, ...
@@ -65,15 +63,26 @@ T2.Power = dBmToWatts(T2.Power);
 
 % Subtract powers and convert back to dBm ---------------------------------
 T.Power = WattsTodBm(T2.Power - T1.Power);
+T1.Power = WattsTodBm(T1.Power);
+T2.Power = WattsTodBm(T2.Power);
 
 % Limit to real #s. Not sure if this has any downsides.
 % Required as of 2022b because destructive interference can return
 % negative W which gives imaginary dBms which coverage doesn't like
 T.Power = real(T.Power);
+T1.Power = real(T1.Power);
+T2.Power = real(T2.Power);
 
 writetable(T, 'coverage.txt');
 
+siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(propagationData(T));
+
+siteviewer("Buildings","stevens.osm","Basemap","topographic");
+plot(propagationData(T1));
+
+siteviewer("Buildings","stevens.osm","Basemap","topographic");
+plot(propagationData(T2));
 
 disp('Coverage data adjusted');
 toc;
