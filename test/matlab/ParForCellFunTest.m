@@ -81,12 +81,12 @@ for o = 1:numCores
 end
 
 parfor n = 1:numCores
-    txs{n} = cellfun(wrapTxs, angles(n,:), 'uniformoutput',false);
+    txs(n,:) = cellfun(wrapTxs, angles(n,:), 'uniformoutput',false);
     disp("created tx object gorup");
 end
 
-parfor m = 1:numCores
-    coverages{m} = cellfun(wrapCoverages, txs(m,:), 'uniformoutput',false);
+parfor m = 1:numAnglesPerCore
+    coverages(m,:) = cellfun(wrapCoverages, txs(m,:), 'uniformoutput',false);
     disp("created coverage object group");
 end
 
