@@ -1,4 +1,5 @@
-addpath ../include/;
+addpath ../../include/;
+addpath ../../source/;
 
 clearMap(siteviewer);
 
@@ -6,6 +7,7 @@ clearMap(siteviewer);
 antenna = YagiAntenna;
 frequency = 2.4e9;
 
+disp(noiseFloor(295, frequency));
 
 % Show antenna properties as figures --------------------------------------
 figure("Name", "Physical Design")

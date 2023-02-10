@@ -1,6 +1,6 @@
 // Petrin 2022
 
-#include "../include/RadioRay.hh"
+#include "../../include/RadioRay.hh"
 
 int main() {
     // Test Constructor:

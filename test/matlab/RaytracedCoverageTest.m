@@ -1,4 +1,5 @@
-addpath ../include/;
+addpath ../../include/;
+addpath ../../source/;
 
 clearMap(siteviewer);
 

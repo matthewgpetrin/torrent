@@ -1,6 +1,6 @@
 // Testing getReflections
 
-#include "../include/Ray.hh"
+#include "../../include/Ray.hh"
 
 int main() {
     // Define obstacles

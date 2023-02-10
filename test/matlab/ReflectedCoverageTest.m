@@ -1,5 +1,5 @@
-addpath ../include/;
-addpath ../source/;
+addpath ../../include/;
+addpath ../../source/;
 
 tic;
 
