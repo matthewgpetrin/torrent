@@ -64,7 +64,7 @@ wrapCoverages = @(y) coverage(y, ...
 numAnglesPerCore = numAngles / numCores;
 
 
-txs = cell(numAnglesPerCore, numCores);
+txs = cell(numCores, numAnglesPerCore);
 angles = cell(numCores, numAnglesPerCore);
 coverages = cell(numCores, numAnglesPerCore);
 
