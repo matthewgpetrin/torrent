@@ -64,7 +64,7 @@ wrapCoverages = @(y) coverage(y, ...
 numAnglesPerCore = numAngles / numCores;
 
 
-txs = cell(numCores, numAnglesPerCore);
+txs = cell(numAnglesPerCore, numCores);
 angles = cell(numCores, numAnglesPerCore);
 coverages = cell(numCores, numAnglesPerCore);
 
@@ -85,7 +85,7 @@ parfor n = 1:numCores
     disp("created tx object gorup");
 end
 
-parfor m = 1:numAnglesPerCore
+parfor m = 1:numCores
     coverages(m,:) = cellfun(wrapCoverages, txs(m,:), 'uniformoutput',false);
     disp("created coverage object group");
 end
@@ -93,6 +93,5 @@ end
 toc;
 
 % View coverage data ------------------------------------------------------
-% siteviewer("Basemap","topographic");
-% show(txs{1, 1});
-% plot(coverages1{1, 1});
+siteviewer("Buildings","stevens.osm","Basemap","topographic");
+plot(coverages{1,1});
