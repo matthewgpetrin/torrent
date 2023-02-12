@@ -29,8 +29,9 @@ reflections = 1;
 terrainMaterial = "perfect-reflector";
 buildingMaterial = "perfect-reflector";
 
-numAngles = 18;
-numCores = 6;
+
+numAngles = 12;
+numCores = 4;
 
 % Define propagation model using raytracing -------------------------------
 prop = propagationModel("raytracing", ...
@@ -41,25 +42,11 @@ prop = propagationModel("raytracing", ...
     "BuildingsMaterial",buildingMaterial);
 
 % Loop simulation ---------------------------------------------------------
-%  n   
 tic;
 
-% Creates txsite as anonymous function. This decreases verbosity when
+% Creates anonymous function for coverages. This decreases verbosity when
 % using cellfun with functions with multiple inputs. It is basically a
 % macro
-wrapTxs = @(x) txsite(...
-        "Antenna", antenna, ...
-        "AntennaAngle", x, ...
-        "AntennaHeight", elevation, ...
-        "Latitude", latitude, ...
-        "Longitude", longitude, ...
-        "Name", "Transmitter", ...
-        "TransmitterFrequency", frequency, ...
-        "TransmitterPower", power);
-
-floor = noiseFloor(295, frequency);
-
-% Creates anonymous function for coverages
 wrapCoverages = @(y) coverage(y, prop, ...
         "MaxRange", 500, ...
         "Resolution", 3, ...
@@ -89,11 +76,20 @@ end
 
 disp(angles);
 
-% Parallel for loop in which each core is assigned an array of angles and
-% populates the txs cell array with txsite objects
-parfor n = 1:numCores
-    txs(n,:) = cellfun(wrapTxs, angles(n,:), 'uniformoutput',false);
-    disp("created tx object group");
+% Loop populates angle array with angles
+for n = 1:numCores
+    for m = 1:numAnglesPerCore
+        txs{n,m} = txsite(...
+            "Antenna", antenna, ...
+            "AntennaAngle", angles{n,m}, ...
+            "AntennaHeight", elevation, ...
+            "Latitude", latitude, ...
+            "Longitude", longitude, ...
+            "Name", "Transmitter", ...
+            "TransmitterFrequency", frequency, ...
+            "TransmitterPower", power);
+        disp("created tx object group");
+    end
 end
 
 % Parallel for loop in which each core is assigned an array of txsite
@@ -109,3 +105,6 @@ toc;
 % View coverage data ------------------------------------------------------
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(coverages{1,1});
+
+rmpath ../../source/;
+rmpath ../../include/;
