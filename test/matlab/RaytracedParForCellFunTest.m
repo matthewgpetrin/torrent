@@ -1,4 +1,4 @@
-% % This file calculates different coverage data for the same antenna angled
+% This file calculates different coverage data for the same antenna angled
 % in different directions at the same location. Its speed should be 
 % compared to VectorizedTest in order to determine which solution will be 
 % more efficient. Note that the comparative speed of the files will likely 
@@ -26,12 +26,14 @@ elevation = 1;
 
 reflections = 1;
 
-terrainMaterial = "concrete";
-buildingMaterial = "concrete";
+terrainMaterial = "perfect-reflector";
+buildingMaterial = "perfect-reflector";
+
 
 numAngles = 12;
 numCores = 4;
 
+% Define propagation model using raytracing -------------------------------
 prop = propagationModel("raytracing", ...
     "Method", "sbr", ...
     "AngularSeparation","high", ...
@@ -42,49 +44,57 @@ prop = propagationModel("raytracing", ...
 % Loop simulation ---------------------------------------------------------
 tic;
 
-wrapTxs = @(x) txsite(...
-        "Antenna", antenna, ...
-        "AntennaAngle", x, ...
-        "AntennaHeight", elevation, ...
-        "Latitude", latitude, ...
-        "Longitude", longitude, ...
-        "Name", "Transmitter", ...
-        "TransmitterFrequency", frequency, ...
-        "TransmitterPower", power);
-
-floor = noiseFloor(295, frequency);
-
+% Creates anonymous function for coverages. This decreases verbosity when
+% using cellfun with functions with multiple inputs. It is basically a
+% macro
 wrapCoverages = @(y) coverage(y, prop, ...
         "MaxRange", 500, ...
         "Resolution", 3, ...
         "ShowLegend", true, ...
         "SignalStrengths", floor:-5, ...
         "Transparency", 0.6);    
-    
+
+% Determines how many angles will be run on each core
 numAnglesPerCore = numAngles / numCores;
 
-
+% Define cell arrays with #core columns. The angles to be processed by
+% each core are found in the rows.
 txs = cell(numCores, numAnglesPerCore);
 angles = cell(numCores, numAnglesPerCore);
 coverages = cell(numCores, numAnglesPerCore);
 
 
 q = 0;
-
+% Populates the angles cell array with angles
 for o = 1:numCores
     for p = 1:numAnglesPerCore
         angle = 360 / numAngles * (q);
-        disp(angle);
         angles{o, p} = angle;
         q = q + 1;
     end
 end
 
-parfor n = 1:numCores
-    txs(n,:) = cellfun(wrapTxs, angles(n,:), 'uniformoutput',false);
-    disp("created tx object gorup");
+disp(angles);
+
+% Loop populates angle array with angles
+for n = 1:numCores
+    for m = 1:numAnglesPerCore
+        txs{n,m} = txsite(...
+            "Antenna", antenna, ...
+            "AntennaAngle", angles{n,m}, ...
+            "AntennaHeight", elevation, ...
+            "Latitude", latitude, ...
+            "Longitude", longitude, ...
+            "Name", "Transmitter", ...
+            "TransmitterFrequency", frequency, ...
+            "TransmitterPower", power);
+        disp("created tx object group");
+    end
 end
 
+% Parallel for loop in which each core is assigned an array of txsite
+% objects and populates the coverages cell array with propagationData
+% objects
 parfor m = 1:numCores
     coverages(m,:) = cellfun(wrapCoverages, txs(m,:), 'uniformoutput',false);
     disp("created coverage object group");
@@ -95,3 +105,6 @@ toc;
 % View coverage data ------------------------------------------------------
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(coverages{1,1});
+
+rmpath ../../source/;
+rmpath ../../include/;
