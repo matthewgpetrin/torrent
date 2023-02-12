@@ -2,14 +2,15 @@ addpath ../../include/;
 addpath ../../source/;
 
 % Input variables ---------------------------------------------------------
-antenna = YagiAntenna;
 frequency = 2.4e9;
+antenna = UCA(frequency, 20, 9);
 power = 0.1;
 
 latitude = 40.745589;
 longitude = -74.024837;
 
 elevation = 1;
+angle = 10;
 
 reflections = 1;
 
@@ -35,14 +36,17 @@ prop = propagationModel("raytracing", ...
     "TerrainMaterial",terrainMaterial, ...
     "BuildingsMaterial",buildingMaterial);
 
-cv = coverage(tx, prop, ...
-        "MaxRange", 500, ...
+cv = coverage(tx, ...
+        "MaxRange", 300, ...
         "Resolution", 3, ...
         "ShowLegend", true, ...
-        "SignalStrengths", floor:-5, ...
-        "Transparency", 0.6);   
+        "SignalStrengths", noiseFloor(295, frequency):-5, ...
+        "Transparency", 0.6); 
 
 toc;
 
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(cv);
+
+rmpath ../../include/;
+rmpath ../../source/;

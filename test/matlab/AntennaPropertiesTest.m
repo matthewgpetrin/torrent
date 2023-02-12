@@ -1,29 +1,27 @@
 addpath ../../include/;
 addpath ../../source/;
 
-clearMap(siteviewer);
-
-% Input variables ---------------------------------------------------------
-antenna = YagiAntenna;
+%% Input variables --------------------------------------------------------
 frequency = 2.4e9;
+antenna = UCA(frequency);
 
 disp(noiseFloor(295, frequency));
 
-% Show antenna properties as figures --------------------------------------
+%% Show antenna properties as figures -------------------------------------
 figure("Name", "Physical Design")
-show(antenna); 
+viewArray(antenna, 'ShowNormal', true); 
 
 figure("Name", "Exciter Design")
 show(antenna.Exciter); 
 
-%figure("Name", "Emission Pattern")
-%pattern(antenna, frequency);
-
-figure("Name", "Azimuth Emission Pattern")
-patternAzimuth(antenna, frequency); 
-
-%figure("Name", "Elevation Emission Pattern")
-%patternElevation(antenna, frequency); 
+% %figure("Name", "Emission Pattern")
+% %pattern(antenna, frequency);
+% 
+% figure("Name", "Azimuth Emission Pattern")
+% patternAzimuth(antenna, frequency); 
+% 
+% %figure("Name", "Elevation Emission Pattern")
+% %patternElevation(antenna, frequency); 
 
 % Show power spectrum on map ----------------------------------------------
 tx = txsite("Name","Transmitter", ...
@@ -41,4 +39,6 @@ coverage(tx, ...
         "Resolution", 3, ...
         "Transparency", 0.6);
 
-rmpath ../include/;
+rmpath ../../include/;
+
+rmpath ../../source/;

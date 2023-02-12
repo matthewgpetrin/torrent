@@ -1,11 +1,9 @@
 addpath ../../include/;
 addpath ../../source/;
 
-clearMap(siteviewer);
-
 % Input variables ---------------------------------------------------------
 frequency = 2.4e9;
-antenna = YagiAntenna;
+antenna = UCA(2.4e9, 180, 9);
     
 % Define transmitter site  ------------------------------------------------
 tx = txsite("Name","Transmitter", ...
@@ -18,10 +16,10 @@ tx = txsite("Name","Transmitter", ...
 
 % Define coverage data ----------------------------------------------------
 
-coverageData = coverage(tx1, ...
-        "SignalStrengths", -60, ...
+coverageData = coverage(tx, ...
+        "SignalStrengths", noiseFloor(295, frequency), ...
         "Transparency", 0.6, ...
-        "MaxRange", 500);
+        "MaxRange", 1000);
 
 % Display data on map -----------------------------------------------------
 show(tx);
@@ -32,4 +30,5 @@ plot(coverageData);
 table(coverageData.Data);
 writetable(coverageData.Data, 'coverage.txt');
 
-rmpath ../include/;
+addpath ../../source/;
+rmpath ../../include/;
