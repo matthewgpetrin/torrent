@@ -29,8 +29,8 @@ reflections = 1;
 terrainMaterial = "perfect-reflector";
 buildingMaterial = "perfect-reflector";
 
-numAngles = 12;
-numCores = 4;
+numAngles = 18;
+numCores = 6;
 
 % Define propagation model using raytracing -------------------------------
 prop = propagationModel("raytracing", ...
@@ -41,6 +41,7 @@ prop = propagationModel("raytracing", ...
     "BuildingsMaterial",buildingMaterial);
 
 % Loop simulation ---------------------------------------------------------
+%  n   
 tic;
 
 % Creates txsite as anonymous function. This decreases verbosity when
@@ -81,11 +82,12 @@ q = 0;
 for o = 1:numCores
     for p = 1:numAnglesPerCore
         angle = 360 / numAngles * (q);
-        disp(angle);
         angles{o, p} = angle;
         q = q + 1;
     end
 end
+
+disp(angles);
 
 % Parallel for loop in which each core is assigned an array of angles and
 % populates the txs cell array with txsite objects
