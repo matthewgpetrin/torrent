@@ -1,17 +1,7 @@
-int reg;
-int angle;
+int reg, angle, divisor;
 int *digital;
-double v1;
-int v2;
-int v3;
-int v4;
-int v5;
-int v6;
-int v7;
-int v8;
+double v1, v2, v3, v4, v5, v6, v7, v8, v9;
 
-int v9;
-int divisor;
 const int pin1=1;
 #include <Math.h>
 #include <Arduino.h>
