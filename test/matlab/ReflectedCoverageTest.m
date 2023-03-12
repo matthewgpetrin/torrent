@@ -62,9 +62,9 @@ T1.Power = dBmToWatts(T1.Power);
 T2.Power = dBmToWatts(T2.Power);
 
 % Subtract powers and convert back to dBm ---------------------------------
-T.Power = WattsTodBm(T2.Power - T1.Power);
-T1.Power = WattsTodBm(T1.Power);
-T2.Power = WattsTodBm(T2.Power);
+T.Power = wattsTodBm(T2.Power - T1.Power);
+T1.Power = wattsTodBm(T1.Power);
+T2.Power = wattsTodBm(T2.Power);
 
 % Limit to real #s. Not sure if this has any downsides.
 % Required as of 2022b because destructive interference can return
