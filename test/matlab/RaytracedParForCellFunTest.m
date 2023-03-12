@@ -30,8 +30,8 @@ terrainMaterial = "perfect-reflector";
 buildingMaterial = "perfect-reflector";
 
 
-numAngles = 12;
-numCores = 6;
+numAngles = 4;
+numCores = 4;
 
 % Define propagation model using raytracing -------------------------------
 prop = propagationModel("raytracing", ...
@@ -43,7 +43,7 @@ prop = propagationModel("raytracing", ...
 
 % Loop simulation ---------------------------------------------------------
 tic;
-
+floor = noiseFloor(295, 2.4e9);
 % Creates anonymous function for coverages. This decreases verbosity when
 % using cellfun with functions with multiple inputs. It is basically a
 % macro
@@ -96,7 +96,7 @@ end
 % objects and populates the coverages cell array with propagationData
 % objects
 parfor n = 1:numCores
-    coverages(n,:) = cellfun(wrapCoverages, txs(n,:).AntennaAngle, 'uniformoutput',false);
+    coverages(n,:) = cellfun(wrapCoverages, txs(n,:), 'uniformoutput',false);
     disp("created coverage object group");
 end
 
