@@ -1,4 +1,4 @@
-function [array, phaseShifts] = UCA(frequency, angle, numElements)
+function [array] = UCA(frequency, angle, numElements)
 
 % Create a uniform circular array using phased toolbox. This will be used
 % to calculate the necessary phase delays

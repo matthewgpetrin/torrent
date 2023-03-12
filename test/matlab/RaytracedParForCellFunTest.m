@@ -31,7 +31,7 @@ buildingMaterial = "perfect-reflector";
 
 
 numAngles = 12;
-numCores = 4;
+numCores = 6;
 
 % Define propagation model using raytracing -------------------------------
 prop = propagationModel("raytracing", ...
@@ -95,8 +95,8 @@ end
 % Parallel for loop in which each core is assigned an array of txsite
 % objects and populates the coverages cell array with propagationData
 % objects
-parfor m = 1:numCores
-    coverages(m,:) = cellfun(wrapCoverages, txs(m,:), 'uniformoutput',false);
+parfor n = 1:numCores
+    coverages(n,:) = cellfun(wrapCoverages, txs(n,:).AntennaAngle, 'uniformoutput',false);
     disp("created coverage object group");
 end
 
