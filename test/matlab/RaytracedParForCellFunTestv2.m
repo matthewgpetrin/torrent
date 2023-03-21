@@ -161,7 +161,7 @@ writetable(T330, 'angle330.txt');
 % more variables and empty array
 noiseFloorScoreArray = [];
 score = 0;
-limit = -60; %noisefloor
+limit = floor; %noisefloor
 dataLength = 88796;
 % combines table into 1 table
 coverageDataTable = table(T0,T30,T60,T90,T120,T150,T180,T210,T240,T270,T300,T330);
