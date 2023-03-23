@@ -2,10 +2,10 @@
 % in different directions at the same location. Its speed should be 
 % compared to VectorizedTest in order to determine which solution will be 
 % more efficient. Note that the comparative speed of the files will likely 
-% change on different machines and for different nAngles values because 
+% change on different machines and for different numAngles values because 
 % any given computer can only run these loops on as many cores as it has.
 %
-% Alter nAngles to increase or decrease how many angles are compared.
+% Alter numAngles to increase or decrease how many angles are compared.
 % 
 % Note that the code may return an error when attempting to plot the data. 
 % I don't know why this is happening. The code returns properly formatted 
@@ -13,8 +13,6 @@
 
 addpath ../../include/;
 addpath ../../source/;
-
-tic;
 
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
@@ -32,65 +30,65 @@ terrainMaterial = "perfect-reflector";
 buildingMaterial = "perfect-reflector";
 
 
-nAngles = 12;
-nCores = 6;
+numAngles = 12;
+numCores = 6;
 
-nAnglesPerCore = nAngles / nCores;
-
-floor = noiseFloor(295, 2.4e9);
-
-% Define propagation models -----------------------------------------------
-
-prop_0 = propagationModel("raytracing", ...
+% Define propagation model using raytracing -------------------------------
+% reflected model
+prop = propagationModel("raytracing", ...
+    "Method", "sbr", ...
+    "AngularSeparation","high", ...
+    "MaxNumReflections", reflections, ...
+    "TerrainMaterial",terrainMaterial, ...
+    "BuildingsMaterial",buildingMaterial);
+% non reflected model
+prop1 = propagationModel("raytracing", ...
     "Method", "sbr", ...
     "AngularSeparation","high", ...
     "MaxNumReflections", 0, ...
     "TerrainMaterial",terrainMaterial, ...
     "BuildingsMaterial",buildingMaterial);
 
-prop_1 = propagationModel("raytracing", ...
-    "Method", "sbr", ...
-    "AngularSeparation","high", ...
-    "MaxNumReflections", reflections, ...
-    "TerrainMaterial",terrainMaterial, ...
-    "BuildingsMaterial",buildingMaterial);
-
-% Coverages macros --------------------------------------------------------
-cCoverage_0 = @(y) coverage(y, prop_0, ...
+% Loop simulation ---------------------------------------------------------
+tic;
+floor = noiseFloor(295, 2.4e9);
+% Creates anonymous function for coverages. This decreases verbosity when
+% using cellfun with functions with multiple inputs. It is basically a
+% macro
+wrapCoverages = @(y) coverage(y, prop, ...
         "MaxRange", 500, ...
         "Resolution", 3, ...
         "ShowLegend", true, ...
         "SignalStrengths", floor:-5, ...
         "Transparency", 0.6);
 
-cCoverage_1 = @(y) coverage(y, prop_1, ...
-        "MaxRange", 500, ...
-        "Resolution", 3, ...
-        "ShowLegend", true, ...
-        "SignalStrengths", floor:-5, ...
-        "Transparency", 0.6);
 
-% Creat Angles Array ------------------------------------------------------
-angles = cell(nCores, nAnglesPerCore);
+
+% Determines how many angles will be run on each core
+numAnglesPerCore = numAngles / numCores;
+
+% Define cell arrays with #core columns. The angles to be processed by
+% each core are found in the rows.
+txs = cell(numCores, numAnglesPerCore);
+angles = cell(numCores, numAnglesPerCore);
+coverages = cell(numCores, numAnglesPerCore);
+
 
 q = 0;
-for n = 1:nCores
-    for m = 1:nAnglesPerCore
-        angle = 360 / nAngles * (q);
-        angles{n, m} = angle;
+% Populates the angles cell array with angles
+for o = 1:numCores
+    for p = 1:numAnglesPerCore
+        angle = 360 / numAngles * (q);
+        angles{o, p} = angle;
         q = q + 1;
     end
-    disp("created angle group of size " + nAnglesPerCore + " for core " + n);
 end
-disp("created parallel array of " + nAngles + " angles for " + nCores + " cores")
 
 disp(angles);
 
-% Create tx sites array ---------------------------------------------------
-txs = cell(nCores, nAnglesPerCore);
-
-for n = 1:nCores
-    for m = 1:nAnglesPerCore
+% Loop populates angle array with angles
+for n = 1:numCores
+    for m = 1:numAnglesPerCore
         txs{n,m} = txsite(...
             "Antenna", antenna, ...
             "AntennaAngle", angles{n,m}, ...
@@ -100,84 +98,144 @@ for n = 1:nCores
             "Name", "Transmitter", ...
             "TransmitterFrequency", frequency, ...
             "TransmitterPower", power);
+        disp("created tx object group");
     end
-    disp("created txsite group of size " + nAnglesPerCore + " for core " + n);
 end
-disp("created parallel array of " + nAngles + " txs for " + nCores + " cores")
 
-% Create arrays of coverage data objects and parallel process -------------
-coverages_0 = cell(nCores, nAnglesPerCore);
-coverages_1 = cell(nCores, nAnglesPerCore);
-
-parfor n = 1:nCores
-    coverages_0(n,:) = cellfun(cCoverage_0, txs(n,:), 'uniformoutput',false);
-    disp("created coverage group of size " + nAnglesPerCore + " for core " + n);
+% Parallel for loop in which each core is assigned an array of txsite
+% objects and populates the coverages cell array with propagationData
+% objects
+parfor n = 1:numCores
+    coverages(n,:) = cellfun(wrapCoverages, txs(n,:), 'uniformoutput',false);
+    disp("created coverage object group");
 end
-disp("created parallel array of " + nAngles + " coverages for " + nCores + " cores")
-
-parfor n = 1:nCores
-    coverages_0(n,:) = cellfun(cCoverage_1, txs(n,:), 'uniformoutput',false);
-    disp("created rt coverage group of size " + nAnglesPerCore + " for core " + n);
-end
-disp("created parallel array of " + nAngles + " rt coverages for " + nCores + " cores")
-
-% Create array of reflected coverage data ---------------------------------
-tables = cell(nCores, nAnglesPerCore);
-
-for n = 1:nCores
-    for m = 1:nAnglesPerCore
-        coverage_0 = coverages_0{n, m};
-        coverage_1 = coverages_1{n, m};
-
-        table_0 = coverage_0.Data;
-        table_1 = coverage_1.Data;
-        table = table_1;
-
-        table_0.Power = dBmToWatts(table_0.Power);
-        table_1.Power = dBmToWatts(table_1.Power);
-        table.Power = table_1.Power - table_0.Power;
-
-        table_0.Power = wattsTodBm(table_0.Power);
-        table_1.Power = wattsTodBm(table_1.Power);
-        table.Power = wattsTodBm(data.Power);
-
-        tables{n,m} = table;
-    end
-    disp("created tables group of size " + nAnglesPerCore + " for core " + n);
-end
-disp("created parallel array of " + nAngles + " tables for " + nCores + " cores")
-
-
-% Create array of scores --------------------------------------------------
-scores = zeros(nCores, nAnglesPerCore);
-
-for n = 1:nCores
-    for m = 1:nAnglesPerCore
-        table = tables{n, m};
-        score = 0;
-        for o = 1:length(table.Power)
-            if o > floor
-                score = score + 1;
-            end
-        end
-        scores(n,m) = score;
-    end
-    disp("created scores group of size " + nAnglesPerCore + " for core " + n);
-end
-disp("created parallel array of " + nAngles + " scores for " + nCores + " cores")
-
-% Find best score and its angle -------------------------------------------
-[s,i] = max(scores(:));
-
-[i_row, i_col] = ind2sub(size(scores),i);
-
-optimal_angle = angles{i_row, i_col};
 
 toc;
+tic;
+% compute coverage data for the 12 angle arrays with 6 cores
 
+coverageData0 = coverages{1,1};
+coverageData30 = coverages{1,2};
+coverageData60 = coverages{2,1};
+coverageData90 = coverages{2,2};
+coverageData120 = coverages{3,1};
+coverageData150 = coverages{3,2};
+coverageData180 = coverages{4,1};
+coverageData210 = coverages{4,2};
+coverageData240 = coverages{5,1};
+coverageData270 = coverages{5,2};
+coverageData300 = coverages{6,1};
+coverageData330 = coverages{6,2};
+
+
+% create 12 tables for each coverage data
+T0 = coverageData0.Data;
+T30 = coverageData30.Data;
+T60 = coverageData60.Data;
+T90 = coverageData90.Data;
+T120 = coverageData120.Data;
+T150 = coverageData150.Data;
+T180 = coverageData180.Data;
+T210 = coverageData210.Data;
+T240 = coverageData240.Data;
+T270 = coverageData270.Data;
+T300 = coverageData300.Data;
+T330 = coverageData330.Data;
+
+% create txt for coverage data table for 12 angles
+% (optional: used for checking values )
+
+writetable(T0, 'angle0.txt');
+writetable(T30, 'angle30.txt');
+writetable(T60, 'angle60.txt');
+writetable(T90, 'angle90.txt');
+writetable(T120, 'angle120.txt');
+writetable(T150, 'angle150.txt');
+writetable(T180, 'angle180.txt');
+writetable(T210, 'angle210.txt');
+writetable(T240, 'angle240.txt');
+writetable(T270, 'angle270.txt');
+writetable(T300, 'angle300.txt');
+writetable(T330, 'angle330.txt');
+
+% more variables and empty array
+noiseFloorScoreArray = [];
+score = 0;
+limit = floor; %noisefloor
+dataLength = 88796;
+% combines table into 1 table
+coverageDataTable = table(T0,T30,T60,T90,T120,T150,T180,T210,T240,T270,T300,T330);
+% splitvar function to allow writing nested tables
+T1 = splitvars(coverageDataTable);
+% turns table into array
+coverageDataArray = table2array(T1);
+% loop to calculate number of data above threshhold 
+
+for angle = 3:3:numAngles*3 %checks only the power value of each table
+    for row = 1:dataLength %checks through all datapoints
+        if coverageDataArray(row,angle) >= limit %compares power value to noise floor
+            score = score + 1; %if true, increment by 1
+        end
+    end
+    noiseFloorScoreArray(length(noiseFloorScoreArray)+1) = score; %adds result to array
+    score = 0; %resets score counter to zero for next angle
+end
+
+noiseFloorTotal = table(noiseFloorScoreArray);
+% function to find the highest score
+[val, idx] = max(noiseFloorScoreArray);
+% display the angle with the highest score
+disp('The best angle is:')
+disp((idx-1)*30);
+
+% organizes and displays score value in a 2x6 array to match the angle arrays
+noiseFloorScoreArrayOdd = [noiseFloorScoreArray(1,1);noiseFloorScoreArray(1,3);noiseFloorScoreArray(1,5);noiseFloorScoreArray(1,7);noiseFloorScoreArray(1,9);noiseFloorScoreArray(1,11)];
+noiseFloorScoreArrayEven = [noiseFloorScoreArray(1,2);noiseFloorScoreArray(1,4);noiseFloorScoreArray(1,6);noiseFloorScoreArray(1,8);noiseFloorScoreArray(1,10);noiseFloorScoreArray(1,12)];
+noiseFloorScoreArray2D = [noiseFloorScoreArrayOdd,noiseFloorScoreArrayEven];    
+disp(noiseFloorScoreArray2D);
+
+toc;
+tic;
+% switch case function to plot the best angle found
+switch idx
+    case 12
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{6,2});
+    case 11
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{6,1});
+    case 10
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{5,2});
+    case 9
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{5,1});
+    case 8
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{4,2});
+    case 7
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{4,1});
+    case 6
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{3,2});
+    case 5
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{3,1});
+    case 4
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{2,2});
+    case 3
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{2,1});
+    case 2
+    siteviewer("Buildings","stevens.osm","Basemap","topographic");
+    plot(coverages{1,2});
+    otherwise
 % View coverage data ------------------------------------------------------
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
-plot(coverages{i_row, i_col});
-
+plot(coverages{1,1});
+end
+toc;
 rmpath ../../source/;
 rmpath ../../include/;
