@@ -1,13 +1,12 @@
 int reg, angle, divisor, n;
 int* digital;
-double v1, v2, v3, v4, v5, v6, v7, v8, v9;
 double voltage[7];
 int voltpins[7];
 const int pin1=1;
 int digitalpins[42];
 #include <Math.h>
 #include <Arduino.h>
-int* analogtobits(double num1) {
+int* analogToBits(double num1) {
   angle = num1*72;
   angle = round(angle);
   divisor = 180;
@@ -66,7 +65,7 @@ void loop() {
   }
   
 }
-void makedigitaloutput(int* digitalNum, int numPin) {
+void makeDigitalOutput(int* digitalNum, int numPin) {
   reg = 0;
   while (reg <6) {
     if (digital[reg] = 1){
