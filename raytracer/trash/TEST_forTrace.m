@@ -1,10 +1,7 @@
-% % This file calculates different coverage data for the same antenna angled
-% in different directions at the same location. Its speed should be 
-% compared to VectorizedTest in order to determine which solution will be 
-% more efficient. Note that the comparative speed of the files will likely 
-% change on different machines and for different numAngles values because 
-% any given computer can only run these loops on as many cores as it has.
-%
+%This file calculates different coverage data for the same antenna angled
+% in different directions at the same location. It is to be compared to
+% ParForTest to test for speed improvements when using parfor.
+% 
 % Alter numAngles to increase or decrease how many angles are compared.
 % 
 % Note that the code may return an error when attempting to plot the data. 
@@ -19,8 +16,8 @@ antenna = YagiAntenna;
 frequency = 2.4e9;
 power = 0.1;
 
-latitude = 40.745589;
-longitude = -74.024837;
+latitude = 37.338380;
+longitude = -115.924490;
 
 elevation = 1;
 
@@ -30,13 +27,6 @@ terrainMaterial = "concrete";
 buildingMaterial = "concrete";
 
 numAngles = 4;
-
-prop = propagationModel("raytracing", ...
-    "Method", "sbr", ...
-    "AngularSeparation","high", ...
-    "MaxNumReflections", reflections, ...
-    "TerrainMaterial",terrainMaterial, ...
-    "BuildingsMaterial",buildingMaterial);
 
 % Loop simulation ---------------------------------------------------------
 tic;
@@ -60,8 +50,8 @@ end
 
 floor = noiseFloor(295, frequency);
 
-parfor m = 1:numAngles
-    coverages{1, m} = coverage(txs{1, m}, prop, ...
+for m = 1:nAngles
+    coverages{1, m} = coverage(txs{1, m}, ...
         "MaxRange", 500, ...
         "Resolution", 3, ...
         "ShowLegend", true, ...
@@ -71,3 +61,8 @@ parfor m = 1:numAngles
 end
 
 toc;
+
+% View coverage data ------------------------------------------------------
+% siteviewer("Basemap","topographic");
+% show(txs{1, 1});
+% plot(coverages1{1, 1});
