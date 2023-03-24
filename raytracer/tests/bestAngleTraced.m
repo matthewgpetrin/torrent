@@ -11,8 +11,8 @@
 % I don't know why this is happening. The code returns properly formatted 
 % data, but refuses to plot it.
 
-addpath ../torrent/raytracer/src/;
-addpath ../torrent/raytracer/utils/;
+addpath raytracer/src/;
+addpath raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 antenna = UCA;
@@ -241,5 +241,5 @@ plot(coverages{1,1});
 end
 toc;
 
-rmpath ../torrent/raytracer/utils/;
-rmpath ../torrent/raytracer/src/;
+rmpath raytracer/utils/;
+rmpath raytracer/src/;

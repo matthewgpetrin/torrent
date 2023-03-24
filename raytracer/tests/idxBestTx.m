@@ -1,97 +1,126 @@
-% This file calculates different coverage data for the same antenna angled
-% in different directions at the same location. Its speed should be 
-% compared to VectorizedTest in order to determine which solution will be 
-% more efficient. Note that the comparative speed of the files will likely 
-% change on different machines and for different nAngs values because 
-% any given computer can only run these loops on as many cores as it has.
-%
-% Alter nAngs to increase or decrease how many angles are compared.
-% 
-% Note that the code may return an error when attempting to plot the data. 
-% I don't know why this is happening. The code returns properly formatted 
-% data, but refuses to plot it.
+function idx = idxBestTx(txs, floor, options)
 
-addpath ../torrent/raytracer/src/;
-addpath ../torrent/raytracer/utils/;
+arguments
+    txs
+    floor
 
-%% Input variables ---------------------------------------------------------
-latitude = 40.745589;
-longitude = -74.024837;
-elevation = 2;
+    options.Reflections (1,1) int16 = 1
 
-power = 1;
-frequency = 2.4e9;
-
-nElements = 8;
-
-reflections= 1;
-
-terrainMaterial = "perfect-reflector";
-buildingMaterial = "perfect-reflector";
-
-nCPUs = 4;
-nAngs = 4;
-
-tic;
-
-%% Define parameters ------------------------------------------------------
-nAngPerCpu = nAngs/ nCPUs;
-floor = noiseFloor(295, frequency);
-
-%% Create angles Array -----------------------------------------------------
-angles = cell(nCPUs, nAngPerCpu);
-
-q = 0;
-for n = 1:nCPUs
-    for m = 1:nAngPerCpu
-        angle = 360 / nAngs * (q);
-        angles{n, m} = angle;
-        q = q + 1;
-    end
-    disp("created angle group of size " + nAngPerCpu + " for core " + n);
+    options.TerrainMaterial (1,1) string = "perfect-reflector"
+    options.BuildingMaterial (1,1) string = "perfect-reflector"
 end
-disp("created parallel array of " + nAngs + " angles for " + nCPUs + " cores")
 
-disp(angles);
+addpath raytracer/utils/;
 
-%% Create antenna array ---------------------------------------------------
-antennas = cell(nCPUs, nAngPerCpu);
+reflections = options.Reflections;
 
-for n = 1: nCPUs
-    for m = 1: nAngPerCpu
-        antenna = UCA(frequency, angles{n,m}, nElements);
-        antennas{n,m} = antenna;
-    end
-    disp("created antenna group of size " + nAngPerCpu + " for core " + n);
+terrainMaterial = options.TerrainMaterial;
+buildingMaterial = options.BuildingMaterial;
+
+nRows = size(txs, 1);
+nCols = size(txs, 2);
+
+%% Define propagation models -----------------------------------------------
+
+prop_0 = propagationModel("raytracing", ...
+    "Method", "sbr", ...
+    "AngularSeparation","high", ...
+    "MaxNumReflections", 0, ...
+    "TerrainMaterial",terrainMaterial, ...
+    "BuildingsMaterial",buildingMaterial);
+
+prop_1 = propagationModel("raytracing", ...
+    "Method", "sbr", ...
+    "AngularSeparation","high", ...
+    "MaxNumReflections", reflections, ...
+    "TerrainMaterial",terrainMaterial, ...
+    "BuildingsMaterial",buildingMaterial);
+
+%% Coverages macros --------------------------------------------------------
+cCoverage_0 = @(y) coverage(y, prop_0, ...
+        "MaxRange", 500, ...
+        "Resolution", 3, ...
+        "ShowLegend", true, ...
+        "SignalStrengths", floor:-5, ...
+        "Transparency", 0.6);
+
+cCoverage_1 = @(y) coverage(y, prop_1, ...
+        "MaxRange", 500, ...
+        "Resolution", 3, ...
+        "ShowLegend", true, ...
+        "SignalStrengths", floor:-5, ...
+        "Transparency", 0.6);
+
+
+%% Create arrays of coverage data objects and parallel process -------------
+coverages_0 = cell(nRows, nCols);
+coverages_1 = cell(nRows, nCols);
+
+parfor n = 1:nRows
+    coverages_0(n,:) = cellfun(cCoverage_0, txs(n,:), 'uniformoutput',false);
+    disp("created coverage group of size " + nCols + " for core " + n);
 end
-disp("created parallel array of " + nAngs + " antennas for " + nCPUs + " cores")
+disp("created parallel array of " + nCols * nRows + " coverages for " + nRows + " cores")
 
-%% Create tx sites array ---------------------------------------------------
-txs = cell(nCPUs, nAngPerCpu);
-
-for n = 1:nCPUs
-    for m = 1:nAngPerCpu
-        txs{n,m} = txsite(...
-            "Antenna", antennas{n,m}, ...
-            "Latitude", latitude, ...
-            "Longitude", longitude, ...
-            "AntennaHeight", elevation, ...
-            "TransmitterFrequency", frequency, ...
-            "TransmitterPower", power);
-    end
-    disp("created txsite group of size " + nAngPerCpu + " for core " + n);
+parfor n = 1:nRows
+    coverages_1(n,:) = cellfun(cCoverage_1, txs(n,:), 'uniformoutput',false);
+    disp("created rt coverage group of size " + nCols + " for core " + n);
 end
-disp("created parallel array of " + nAngs + " txs for " + nCPUs + " cores")
+disp("created parallel array of " + nCols * nRows + " rt coverages for " + nRows + " cores")
 
-%% Find best angle --------------------------------------------------------
-index = idxBestTx(txs, floor, ...
-    Reflections = reflections, ...
-    TerrainMaterial = terrainMaterial, ...
-    BuildingMaterial = buildingMaterial);
+%% Create array of reflected coverage data ---------------------------------
+tables = cell(nRows, nCols);
 
-disp("optimal transmission angle of " + angles(index));
+for n = 1:nRows
+    for m = 1:nCols
+        coverage_0 = coverages_0{n, m};
+        coverage_1 = coverages_1{n, m};
 
-toc;
+        table_0 = coverage_0.Data;
+        table_1 = coverage_1.Data;
+        table = table_1;
 
-rmpath ../torrent/raytracer/utils/;
-rmpath ../torrent/raytracer/src/;
+        table_0.Power = dBmToWatts(table_0.Power);
+        table_1.Power = dBmToWatts(table_1.Power);
+        table.Power = table_1.Power - table_0.Power;
+
+        table_0.Power = wattsTodBm(table_0.Power);
+        table_1.Power = wattsTodBm(table_1.Power);
+        table.Power = wattsTodBm(table.Power);
+
+        tables{n,m} = table;
+    end
+    disp("created tables group of size " + nCols + " for core " + n);
+end
+disp("created parallel array of " + nCols * nRows + " tables for " + nRows + " cores")
+
+
+%% Create array of scores --------------------------------------------------
+scores = zeros(nRows, nCols);
+
+for n = 1:nRows
+    for m = 1:nCols
+        table = tables{n, m};
+        score = 0;
+        for o = 1:length(table.Power)
+            if o > floor
+                score = score + 1;
+            end
+        end
+        scores(n,m) = score;
+    end
+    disp("created scores group of size " + nCols + " for core " + n);
+end
+disp("created parallel array of " + nCols * nRows + " scores for " + nRows + " cores")
+
+%% Find best score and its index ------------------------------------------
+[~,i] = max(scores(:));
+
+[i_row, i_col] = ind2sub(size(scores),i);
+
+idx = [i_row, i_col];
+
+
+rmpath raytracer/utils/;
+
+end
