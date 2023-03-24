@@ -10,6 +10,8 @@ arguments
     options.BuildingMaterial (1,1) string = "perfect-reflector"
 end
 
+addpath ../torrent/raytracer/utils/;
+
 reflections = options.Reflections;
 
 terrainMaterial = options.TerrainMaterial;

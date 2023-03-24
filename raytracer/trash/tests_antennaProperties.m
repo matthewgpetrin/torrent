@@ -1,5 +1,5 @@
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 %% Input variables --------------------------------------------------------
 frequency = 2.4e9;
@@ -39,6 +39,5 @@ coverage(tx, ...
         "Resolution", 3, ...
         "Transparency", 0.6);
 
-rmpath ../../include/;
-
-rmpath ../../source/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

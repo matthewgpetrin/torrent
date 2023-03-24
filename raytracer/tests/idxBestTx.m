@@ -11,9 +11,8 @@
 % I don't know why this is happening. The code returns properly formatted 
 % data, but refuses to plot it.
 
-addpath ../../include/;
-addpath ../../source/
-addpath ../../source/raytracer;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 %% Input variables ---------------------------------------------------------
 latitude = 40.745589;
@@ -94,5 +93,5 @@ disp("optimal transmission angle of " + angles(index));
 
 toc;
 
-rmpath ../../source/;
-rmpath ../../include/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

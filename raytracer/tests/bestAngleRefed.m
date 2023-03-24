@@ -11,8 +11,8 @@
 % I don't know why this is happening. The code returns properly formatted 
 % data, but refuses to plot it.
 
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 tic;
 
@@ -180,5 +180,5 @@ toc;
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(coverages{i_row, i_col});
 
-rmpath ../../source/;
-rmpath ../../include/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

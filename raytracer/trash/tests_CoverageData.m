@@ -1,5 +1,5 @@
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 frequency = 2.4e9;
@@ -30,5 +30,5 @@ plot(coverageData);
 table(coverageData.Data);
 writetable(coverageData.Data, 'coverage.txt');
 
-addpath ../../source/;
-rmpath ../../include/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

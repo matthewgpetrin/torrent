@@ -11,8 +11,8 @@
 % I don't know why this is happening. The code returns properly formatted 
 % data, but refuses to plot it.
 
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
@@ -69,3 +69,6 @@ toc;
 % siteviewer("Basemap","topographic");
 % show(txs{1, 1});
 % plot(coverages1{1, 1});
+
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

@@ -11,8 +11,8 @@
 % I don't know why this is happening. The code returns properly formatted 
 % data, but refuses to plot it.
 
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 antenna = UCA;
@@ -240,5 +240,6 @@ siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(coverages{1,1});
 end
 toc;
-rmpath ../../source/;
-rmpath ../../include/;
+
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

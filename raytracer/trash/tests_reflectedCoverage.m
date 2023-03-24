@@ -1,5 +1,5 @@
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 tic;
 
@@ -87,5 +87,5 @@ plot(propagationData(T2));
 disp('Coverage data adjusted');
 toc;
 
-rmpath ../source/;
-rmpath ../include/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

@@ -11,8 +11,8 @@
 % most stuff online sayd vectorization is faster than parfor, BUT says
 % parfor is faster than cellfun. Please correct it if possible
 
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 antenna = YagiAntenna;
@@ -69,3 +69,6 @@ toc;
 % viewer = siteviewer("Basemap","topographic");
 % show(txs{2, 1});
 % plot(coverages{1, 2});
+
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;

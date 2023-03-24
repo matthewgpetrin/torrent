@@ -1,5 +1,5 @@
-addpath ../../include/;
-addpath ../../source/;
+addpath ../torrent/raytracer/src/;
+addpath ../torrent/raytracer/utils/;
 
 % Input variables ---------------------------------------------------------
 frequency = 2.4e9;
@@ -48,5 +48,5 @@ toc;
 siteviewer("Buildings","stevens.osm","Basemap","topographic");
 plot(cv);
 
-rmpath ../../include/;
-rmpath ../../source/;
+rmpath ../torrent/raytracer/utils/;
+rmpath ../torrent/raytracer/src/;
