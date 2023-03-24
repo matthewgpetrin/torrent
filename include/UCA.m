@@ -10,6 +10,10 @@ phasedUCA = phased.UCA('NumElements', numElements, ...
     'Radius' , 0.5.*(physconst('LightSpeed')/frequency), ...
     'Element', element);
 
+if angle > 180
+    angle = -(360 - angle);
+end
+
 % Double check this
 steeringAngles = angle;
 phaseShiftBits = 6;

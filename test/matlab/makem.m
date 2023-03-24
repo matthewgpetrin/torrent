@@ -71,7 +71,7 @@ cCoverage_1 = @(y) coverage(y, prop_1, ...
         "SignalStrengths", floor:-5, ...
         "Transparency", 0.6);
 
-% Creat Angles Array ------------------------------------------------------
+% Create Angles Array -----------------------------------------------------
 angles = cell(nCores, nAnglesPerCore);
 
 q = 0;

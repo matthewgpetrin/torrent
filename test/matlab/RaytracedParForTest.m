@@ -71,8 +71,3 @@ parfor m = 1:numAngles
 end
 
 toc;
-
-% View coverage data ------------------------------------------------------
-% siteviewer("Basemap","topographic");
-% show(txs{1, 1});
-% plot(coverages1{1, 1});
