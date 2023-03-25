@@ -10,7 +10,7 @@ arguments
     options.BuildingMaterial (1,1) string = "perfect-reflector"
 end
 
-addpath raytracer/utils/;
+addpath ../utils/;
 
 floor = noiseFloor(295, tx.TransmitterFrequency);
 
@@ -50,18 +50,19 @@ table_0 = coverage_0.Data;
 table_1 = coverage_1.Data;
 table = table_1;
 
-table_0.Power = wattsTodBm(coverage_0.Data.Power);
-table_1.Power = wattsTodBm(coverage_1.Data.Power);
-table.Power = dBmToWatts(table_1.Power - table_0.Power);
+table_0.Power = dBmToWatts(coverage_0.Data.Power);
+table_1.Power = dBmToWatts(coverage_1.Data.Power);
 
-table.Power = real(table.Power);
+table.Power = real(wattsTodBm(table_1.Power - table_0.Power));
+table_0.Power = real(wattsTodBm(coverage_0.Data.Power));
+table_1.Power = real(wattsTodBm(coverage_1.Data.Power));
 
-writetable(table_0,'raytracer/data/coverage_0.txt');
-writetable(table_1,'raytracer/data/coverage_1.txt');
-writetable(table, 'raytracer/data/coverage');
+writetable(table_0,'../data/coverage_0.txt', 'WriteVariableNames', true);
+writetable(table_1,'../data/coverage_1.txt','WriteVariableNames', true);
+writetable(table, '../data/coverage','WriteVariableNames', true);
 
 cov = propagationData(table);
 
-rmpath raytracer/utils/;
+rmpath ../utils/;
 
 end
