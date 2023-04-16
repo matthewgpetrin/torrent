@@ -1,31 +1,64 @@
-function angleTable = main(cpu,ang,minLat,maxLat,minLon,maxLon)
+function angleTable = main %(ang, cpu, minLat, maxLat, minLon, maxLon)
 
-%main(4,4, 40.7455, 40.7458, -74.0249, -74.0246)
+% origin point:
+% latitude = 40.745589;
+% longitude = -74.024837;
+% main 4 4 40.7430 40.7455 -74.0270 -74.0240 0.0005
+% main 4 4 40.7455 40.7458 -74.0249 -74.0246 0.0001
+% main 12 6 40.7445 40.7455 -74.0255 -74.0235 0.0005
 
-numberOfCPUs = cpu;
-numberOfAngles = ang;
-minimumLatitude = minLat;
-maximumLatitude = maxLat;
-minimumLongitude = minLon;
-maximumLongitude = maxLon;
-lengthLatitude = (maximumLatitude-minimumLatitude).*10000-1;
+tic;
+promptAng = "Angles:";
+ang = input(promptAng);
+promptCPU = "CPUs:";
+cpu = input(promptCPU);
+promptMinLat ="Minimum Latitude:";
+minLat = input(promptMinLat);
+promptMaxLat ="Maximum Latitude:";
+maxLat= input(promptMaxLat);
+promptMinLon = "Min Longitude:";
+minLon = input(promptMinLon);
+promptMaxLon = "Max Longitude:";
+maxLon = input(promptMaxLon);
+promptIncrement= "Increment:";
+incrementValue = input(promptIncrement);
+numberOfAngles = (ang);
+    disp('Number Of Angles: ');
+    disp(numberOfAngles);
+numberOfCPUs = (cpu);
+    disp(numberOfCPUs);
+    disp('Number Of CPUs: ');
+minimumLatitude = (minLat);
+    disp(minimumLatitude);
+maximumLatitude = (maxLat);
+    disp(maximumLatitude);
+minimumLongitude = (minLon);
+    disp(minimumLongitude);
+maximumLongitude = (maxLon);
+    disp(maximumLongitude);
+incrementAmount = 1/incrementValue;
+latitudedifference = minus(maximumLatitude,minimumLatitude);    
+longitudedifference = minus(maximumLongitude,minimumLongitude);
+lengthLatitude = times(latitudedifference,incrementAmount)-1;
 lengthLatitude = round(lengthLatitude);
-lengthLongitude = (maximumLongitude-minimumLongitude).*10000-1;
+disp('lengthLatitude: ');
+    disp(lengthLatitude);
+lengthLongitude = times(longitudedifference,incrementAmount)-1;
 lengthLongitude = round(lengthLongitude);
-totalPoints = lengthLatitude.*lengthLongitude; %total points within area
-totalPoints = round(totalPoints);
-disp('Total number of coordinate points: ')
-disp(totalPoints);
+disp('lengthLongitude: ');
+    disp(lengthLongitude);
+totalPoints = lengthLatitude*lengthLongitude; %total points within area
+%totalPoints = round(totalPoints);
 %% checks if points can be divided evenly between cores -------------------
-modValue = mod(numberOfAngles,numberOfCPUs);
-if modValue < 0.00001 %turn very small decimal mod value (ex: 1e-12) to 0
-    modValue = 0;
-end
+%modValue = mod(numberOfAngles,numberOfCPUs);
+%if modValue < 0.00001 %turn very small decimal mod value (ex: 1e-12) to 0
+%    modValue = 0;
+%end
 % check if points can be evenly divided
-if modValue ~=0
-    disp('unequal points to divide between cores');
-    return;
-end
+%if modValue ~=0
+%    disp('unequal points to divide between cores');
+%    return;
+%end
 %% create 3D array to stores coords with bestAngle per core ---------------
 %original coord values:
 %x=40.745589;
@@ -39,8 +72,8 @@ coordinatePointsAllIndex = 1;
 coordinatePointsAll2D = zeros(totalPoints,2);
 for a=1:lengthLatitude
     for b=1:lengthLongitude
-        x = minimumLatitude + 0.0001.*a;
-        y = minimumLongitude + 0.0001.*b;
+        x = minimumLatitude + incrementValue*a;
+        y = minimumLongitude + incrementValue*b;
         coordinatePointsAll2D(coordinatePointsAllIndex,:) = [x,y];
         coordinatePointsAllIndex = coordinatePointsAllIndex + 1;
     end
@@ -48,6 +81,8 @@ end
 disp(coordinatePointsAll2D);
 coordinatePointsAll2DX = coordinatePointsAll2D(:,1);
 coordinatePointsAll2DY = coordinatePointsAll2D(:,2);
+disp('Total number of coordinate points: ')
+    disp(totalPoints);
 %% turns 2D array into 3D array to divide coords for each core ------------
 %disp('Number of points per core: ');
 %disp(numberOfPointsPerCPU);
@@ -94,6 +129,7 @@ coordinatePointsAll2DY = coordinatePointsAll2D(:,2);
 coordinateAngle = [];
 
 
+
 parfor a = 1:totalPoints
 
             m = chosenAngle(numberOfAngles, numberOfCPUs, minimumLatitude,maximumLatitude, minimumLongitude,maximumLongitude,...
@@ -111,6 +147,7 @@ parfor a = 1:totalPoints
             
             
             coordinateAngle(a,:) = m;
+
   
 end
 
@@ -153,4 +190,5 @@ angleTable.Longitude = longitudeValues;
 angleTable.Angle = bestAngle;
 writetable(angleTable, 'angleTable.txt');
 disp(angleTable);
+toc;
 
