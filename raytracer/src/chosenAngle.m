@@ -1,16 +1,21 @@
-function idx = bestAngle(nAngles, nCPUs, options)
+function idxAngle = chosenAngle(nAngles, nCPUs, minLatitude,maxLatitude,minLongitude,maxLongitude, options)
 
 arguments
     nAngles
     nCPUs
+    minLatitude
+    maxLatitude
+    minLongitude
+    maxLongitude
+   
 
     options.nElements (1,1) double = 8
     options.Power (1,1) {mustBeNumeric} = 1
     options.Frequency (1,1) {mustBeNumeric} = 2.4e9
-    options.Floor (1,1) {mustBeNumeric} = noiseFloor(295, 2.4e9)
+    options.Floor (1,1) {mustBeNumeric} = noiseFloor(295, 2.4e9) %295,2.4e9
 
-    options.Latitude (1,1) {mustBeNumeric} = 40.745589
-    options.Longitude (1,1) {mustBeNumeric} = -74.024837
+    options.Latitude (1,1) {mustBeNumeric} = x
+    options.Longitude (1,1) {mustBeNumeric} = y
     options.Elevation (1,1) {mustBeNumeric} = 2
 
     options.Inaccuracy (1,1) string = "high"
@@ -20,10 +25,9 @@ arguments
     options.BuildingMaterial (1,1) string = "perfect-reflector"
 end
 
-addpath ../utils/;
+
 
 tic;
-
 nAngPerCPU = nAngles/ nCPUs;
 
 %% Create angles Array ----------------------------------------------------
@@ -92,28 +96,47 @@ scores = zeros(nCPUs, nAngPerCPU);
 
 for n = 1:nCPUs
     for m = 1:nAngPerCPU
-        score = transmissionScore(coverages{n,m}, options.Floor);
-        scores(n,m) = score;
+        %score = transmissionScore(coverages{n,m}, minLatitude,maxLatitude,minLongitude,maxLongitude,options.Floor);
+        table = coverages{n,m}.Data;
+        coverageArray = table2array(table);
+        
+            scoreCounter = 0;
+            
+            for row = 1:size(coverageArray,1)
+                    if coverageArray(row,3) > options.Floor && coverageArray(row,1) > minLatitude && coverageArray(row,1) < maxLatitude && coverageArray(row,2) > minLongitude && coverageArray(row,2) < maxLongitude
+                        scoreCounter = scoreCounter + 1;
+                       
+                    end
+            end
+            scoreValue = scoreCounter;
+            
     end
-    disp("created scores group of size " + nAngPerCPU + " for core " + n);
+        scores(n,m) = scoreValue;
 end
-disp("created parallel array of " + nAngPerCPU * nCPUs + " scores for " + nCPUs + " cores")
+    disp("created scores group of size " + nAngPerCPU + " for core " + n);
+
+disp("created parallel array of " + nAngPerCPU * nCPUs + " scores for " + nCPUs + " cores");
 
 %% Find best score and its index ------------------------------------------
 [~,i] = max(scores(:));
 
 [i_row, i_col] = ind2sub(size(scores),i);
 
+idxAngle = angles{i_row, i_col};
+
 idx = [i_row, i_col];
 
-disp("optimal transmission angle of " + angles(idx));
+disp("optimal transmission angle of " + options.Latitude +", "+ options.Longitude +": "); ...
+disp((idx));
 
-cov = coverages{i_row, i_col};
 
-plot(cov);
+
+%cov = coverages{i_row, i_col};
+
+%plot(cov);
+
+
 
 toc;
-
-rmpath ../utils/;
 
 end
