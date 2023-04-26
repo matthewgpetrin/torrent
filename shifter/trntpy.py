@@ -1,7 +1,7 @@
 import csv
 import rtree
 
-# ON STARTUP - RUN THIS ONCE AND SAVE THE RTREE
+# ON STARTUP - RUN THIS ONCE AND SAVE THE RETURN VALUE
 # pass it a trnt (csv) file and the distance between points (in GPS)
 # returns a 2d python list and an rtree object that can be searched
 def parse_trnt(trnt, dist):
@@ -35,7 +35,7 @@ start_time = time.time()
 
 data = parse_trnt('canavan.trnt', 0.000025)
 
-angle = search_trnt(40.744,-74.025975, data)[2]
+angle = search_trnt(40.7441,-74.0259751, data)[2]
         
 print(angle)
 
