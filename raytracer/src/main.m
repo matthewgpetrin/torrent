@@ -31,7 +31,7 @@ max_lon = (max_lon);
 disp("GPS Range: [" + min_lat + "," + min_lon ...
             + "] [" + max_lat + "," + max_lon + "]");
 
-addpath("..\utils\");
+addpath("..\util\");
 addpath("..\antennas\");
 
 %% Compute points to be analyzed ------------------------------------------
@@ -106,7 +106,7 @@ end
 coord_angle_array = horzcat(coord_points, coord_angles);
 toc;
 
-rmpath("..\utils\");
+rmpath("..\util\");
 rmpath("..\antennas\");
 
 writematrix(coord_angle_array, "../data/" + map_name + ".trnt", 'FileType', 'text');

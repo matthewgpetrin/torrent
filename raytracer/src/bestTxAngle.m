@@ -24,7 +24,7 @@ arguments
     options.building_material (1,1) string = "concrete"
 end
 
-addpath("..\utils\");
+addpath("..\util\");
 addpath("..\antennas\");
 
 tic;
@@ -132,7 +132,7 @@ disp("optimal transmission angle of " + options.lat + ", "+ options.lon + ": " +
 
 toc;
 
-rmpath("..\utils\");
+rmpath("..\util\");
 rmpath("..\antennas\");
 
 end
