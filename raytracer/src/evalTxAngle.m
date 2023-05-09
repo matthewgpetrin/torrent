@@ -1,22 +1,29 @@
-function score = transmissionScore(coverage, floor, minLatitude, maxLatitude, minLongitude, maxLongitude)
+function [score] = evalTxAngle(coverage, min_lat, max_lat, min_lon, max_lon, floor)
 
-    arguments
-        coverage
-        floor
-        minLatitude
-        maxLatitude
-        minLongitude
-        maxLongitude
+arguments
+    coverage
+    min_lat
+    max_lat
+    min_lon
+    max_lon
+    floor
+end
+
+table = coverage{n,m}.Data;
+coverages = table2array(table);
+
+score = 0;
+for row = 1:size(coverage_array,1)
+    if coverages(row,3) > floor && ...
+        coverages(row,1) > min_lat && ...
+        coverages(row,1) < max_lat && ...
+        coverages(row,2) > min_lon && ...
+        coverages(row,2) < max_lon
+                        score = score + 1;
     end
+end
+
+end
     
-    table = coverage.Data;
-    coverageArray = table2array(table);
-        score = 0;
-        for row = 1:size(coverageArray,1)
-            if coverageArray(row,1) > minLatitude && coverageArray(row,1) < maxLatitude && coverageArray(row,2) > minLongitude && coverageArray(row,2) < maxLongitude
-                if coverageArray(row,3) > floor
-                    score = score + 1;
-                end
-            end
-        end
-    end
+    
+    
