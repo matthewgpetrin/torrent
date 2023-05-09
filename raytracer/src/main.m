@@ -1,194 +1,112 @@
-function angleTable = main %(ang, cpu, minLat, maxLat, minLon, maxLon)
+function coord_angle_array = main %(ang, cpu, min_lat, max_lat, min_lon, max_lon)
 
 % origin point:
-% latitude = 40.745589;
-% longitude = -74.024837;
-% main 4 4 40.7430 40.7455 -74.0270 -74.0240 0.0005
-% main 4 4 40.7455 40.7458 -74.0249 -74.0246 0.0001
-% main 12 6 40.7445 40.7455 -74.0255 -74.0235 0.0005
+% 2 meter = 0.000025
+% main 12 12 40.743975 40.744600 -74.026025 -74.025375 0.000025
 
-tic;
-promptAng = "Angles:";
-ang = input(promptAng);
-promptCPU = "CPUs:";
-cpu = input(promptCPU);
-promptMinLat ="Minimum Latitude:";
-minLat = input(promptMinLat);
-promptMaxLat ="Maximum Latitude:";
-maxLat= input(promptMaxLat);
-promptMinLon = "Min Longitude:";
-minLon = input(promptMinLon);
-promptMaxLon = "Max Longitude:";
-maxLon = input(promptMaxLon);
-promptIncrement= "Increment:";
-incrementValue = input(promptIncrement);
-numberOfAngles = (ang);
-    disp('Number Of Angles: ');
-    disp(numberOfAngles);
-numberOfCPUs = (cpu);
-    disp(numberOfCPUs);
-    disp('Number Of CPUs: ');
-minimumLatitude = (minLat);
-    disp(minimumLatitude);
-maximumLatitude = (maxLat);
-    disp(maximumLatitude);
-minimumLongitude = (minLon);
-    disp(minimumLongitude);
-maximumLongitude = (maxLon);
-    disp(maximumLongitude);
-incrementAmount = 1/incrementValue;
-latitudedifference = minus(maximumLatitude,minimumLatitude);    
-longitudedifference = minus(maximumLongitude,minimumLongitude);
-lengthLatitude = times(latitudedifference,incrementAmount)-1;
-lengthLatitude = round(lengthLatitude);
-disp('lengthLatitude: ');
-    disp(lengthLatitude);
-lengthLongitude = times(longitudedifference,incrementAmount)-1;
-lengthLongitude = round(lengthLongitude);
-disp('lengthLongitude: ');
-    disp(lengthLongitude);
-totalPoints = lengthLatitude*lengthLongitude; %total points within area
-%totalPoints = round(totalPoints);
-%% checks if points can be divided evenly between cores -------------------
-%modValue = mod(numberOfAngles,numberOfCPUs);
-%if modValue < 0.00001 %turn very small decimal mod value (ex: 1e-12) to 0
-%    modValue = 0;
+%% Prompt user for inputs--------------------------------------------------
+num_angs = input("# Angles: ");
+
+num_cpus = input("# CPUs: ");
+
+min_lat = input("Minimum Latitude: ");
+max_lat = input("Maximum Latitude: ");
+
+min_lon = input("Minimum Longitude: ");
+max_lon = input("Maximum Longitude: ");
+
+accuracy = input("GPS Accuracy: ");
+
+map_name = input("Map Name: ", 's');
+
+num_angs = (num_angs);
+num_cpus = (num_cpus);
+
+min_lat = (min_lat);
+max_lat = (max_lat);
+
+min_lon = (min_lon);
+max_lon = (max_lon);
+
+disp("GPS Range: [" + min_lat + "," + min_lon ...
+            + "] [" + max_lat + "," + max_lon + "]");
+
+addpath("..\utils\");
+addpath("..\antennas\");
+
+%% Compute points to be analyzed ------------------------------------------
+x = 1 / accuracy;
+
+lat_range = minus(max_lat, min_lat);    
+lon_range = minus(max_lon, min_lon);
+
+length_latitude = times(lat_range, x)-1;
+length_latitude = round(length_latitude);
+disp('length_latitude: ');
+    disp(length_latitude);
+
+length_longitude = times(lon_range, x) -1;
+length_longitude = round(length_longitude);
+disp('length_longitude: ');
+    disp(length_longitude);
+
+num_points = length_latitude * length_longitude; %total points within area
+
+%% Check if points can be divided evenly between cores --------------------
+%mod_val = mod(num_angs, num_cpus);
+%
+%if mod_val < 0.00001 %turn very small decimal mod value (ex: 1e-12) to 0
+%    mod_val = 0;
 %end
-% check if points can be evenly divided
-%if modValue ~=0
-%    disp('unequal points to divide between cores');
+% 
+%check if points can be evenly divided
+%if mod_val ~= 0
+%    disp('Cannot evenly divide points between cores');
 %    return;
 %end
-%% create 3D array to stores coords with bestAngle per core ---------------
-%original coord values:
-%x=40.745589;
-%y=-74.024837;
 %
-%numberOfPointsPerCPU = totalPoints/numberOfCPUs; %total points per core
-%numberOfPointsPerCPU = round(numberOfPointsPerCPU); %ensures numberOfPointsPerCPU is an integer
-%% create a 2D array for all the points in the area -----------------------
+%% Create 3D array to store coords with bestAngle per core ----------------
+%points_per_cpu = num_points / num_cpus; %total points per core
+%
+%points_per_cpu = round(points_per_cpu); %ensures points_per_cpu is an integer
+%
+%% Create a 2D array for all the points in the area -----------------------
+coord_points = zeros(num_points, 2);
 
-coordinatePointsAllIndex = 1;
-coordinatePointsAll2D = zeros(totalPoints,2);
-for a=1:lengthLatitude
-    for b=1:lengthLongitude
-        x = minimumLatitude + incrementValue*a;
-        y = minimumLongitude + incrementValue*b;
-        coordinatePointsAll2D(coordinatePointsAllIndex,:) = [x,y];
-        coordinatePointsAllIndex = coordinatePointsAllIndex + 1;
+idx = 1;
+for a = 1:length_latitude
+    for b = 1:length_longitude
+        x = min_lat + accuracy * a;
+        y = min_lon + accuracy * b;
+        coord_points(idx,:) = [x,y];
+        idx = idx + 1;
     end
 end
-disp(coordinatePointsAll2D);
-coordinatePointsAll2DX = coordinatePointsAll2D(:,1);
-coordinatePointsAll2DY = coordinatePointsAll2D(:,2);
-disp('Total number of coordinate points: ')
-    disp(totalPoints);
-%% turns 2D array into 3D array to divide coords for each core ------------
-%disp('Number of points per core: ');
-%disp(numberOfPointsPerCPU);
-%coordinatePointsAll3D = zeros(numberOfPointsPerCPU,2,numberOfCPUs);
-%counter = 1;
-%for i=1:numberOfCPUs
-%    while counter <= numberOfPointsPerCPU
-%        coordinatePointsAll3D(counter,:,i) = coordinatePointsAll2D(counter+(numberOfPointsPerCPU.*(i-1)),:);
-%        counter = counter +1 ;
-%    end
-%    counter = 1;
-%end
-%disp(coordinatePointsAll3D);
-%% bestAngle parfor loop --------------------------------------------------
-%
-%coordinatePoints3D = zeros(numberOfPointsPerCPU,4,numberOfCPUs);
-%
-%for a=1:numberOfCPUs
-%    for b=1:numberOfPointsPerCPU
-%       
-%    
-%            m = bestAngle(numberOfAngles, numberOfCPUs, minimumLatitude,maximumLatitude, minimumLongitude,maximumLongitude,...
-%                "nElements", 8, ...
-%                "Power", 1, ...
-%                "Frequency",  2.4e9, ...
-%                "Latitude", coordinatePointsAll3D(b,1,a), ...
-%                "Longitude", coordinatePointsAll3D(b,2,a), ...
-%                "Elevation", 2, ...
-%                "Inaccuracy",  "high", ...
-%                "Reflections",  1, ...
-%                "TerrainMaterial",  "perfect-reflector", ...
-%                "BuildingMateria" + ...
-%                "l",  "perfect-reflector");
-%
-%            coordinatePoints3D(b,:,a) = [x,y,m];
-%            
-%            
-%    end
-%    
-%end
-%disp(coordinatePoints3D);
+
 %% bestAngle parfor loop ver2 ---------------------------------------------
+coord_angles = [];
 
-coordinateAngle = [];
-
-
-
-parfor a = 1:totalPoints
-
-            m = chosenAngle(numberOfAngles, numberOfCPUs, minimumLatitude,maximumLatitude, minimumLongitude,maximumLongitude,...
-                "nElements", 8, ...
-                "Power", 1, ...
-                "Frequency",  2.4e9, ...
-                "Latitude", coordinatePointsAll2DX(a,1), ...
-                "Longitude", coordinatePointsAll2DY(a,1), ...
-                "Elevation", 2, ...
-                "Inaccuracy",  "high", ...
-                "Reflections",  1, ...
-                "TerrainMaterial",  "perfect-reflector", ...
-                "BuildingMateria" + ...
-                "l",  "perfect-reflector");
-            
-            
-            coordinateAngle(a,:) = m;
-
-  
+parfor idx = 1:num_points
+%             m = bestTxAngle(num_angs, num_cpus, min_lat, max_lat, min_lon, max_lon,...
+%                 "num_elements", 8, ...
+%                 "tx_power", 1, ...
+%                 "tx_freq",  2.4e9, ...
+%                 "floor", noiseFloor(295, 2.4e9), ...
+%                 "lat", coord_points_x(idx, 1), ...
+%                 "lon", coord_points_y(idx, 1), ...
+%                 "el", 2, ...
+%                 "inaccuracy",  "high", ...
+%                 "num_reflects",  2, ...
+%                 "terrain_material", "concrete", ...
+%                 "building_material", "concrete");
+            m = rand * 360
+            coord_angles(idx,:) = m;
 end
 
-coordAngleArray = horzcat(coordinatePointsAll2D,coordinateAngle);
-
-%% Putting all cell arrays into a single array
-%angleArray = [];
-%
-%for m = 1:numberOfCPUs
-%    angleArray = vertcat(angleArray,coordinatePoints3D(:,:,m));
-%end
-%% Translate index to angle value and replaces index with angle values ----
-%
-% converts index to angle for each points
-%angleTranslateArray = [];
-%for angleArrayRowIndex = 1:totalPoints
-%    A = coordAngleArray(angleArrayRowIndex,3);
-%    B = coordAngleArray(angleArrayRowIndex,4);
-%    angleRowIncrement = 360/(numberOfAngles/numberOfCPUs);
-%    angleColumnIncrement = 360/numberOfAngles;
-%    angleTranslate = (angleRowIncrement .* (A-1)) + (angleColumnIncrement) .* (B-1);
-%    angleTranslateArray(angleArrayRowIndex,:) = angleTranslate;
-%    angleArrayRowIndex = angleArrayRowIndex + 1;
-%end
-%
-% replaces index with angles
-%coordAngleArray(:,4) = [];
-%coordAngleArray(:,3) = [];
-%angleArray = horzcat(coordAngleArray, angleTranslateArray);
-%% Outputs array of angle for all points ----------------------------------
-disp('table for bestAngle of all coordinates: ');
-
-latitudeValues = coordAngleArray(:,1);
-longitudeValues = coordAngleArray(:,2);
-bestAngle = coordAngleArray(:,3);
-
-angleTable = table;
-angleTable.Latitude = latitudeValues;
-angleTable.Longitude = longitudeValues;
-angleTable.Angle = bestAngle;
-writetable(angleTable, 'angleTable.txt');
-disp(angleTable);
+coord_angle_array = horzcat(coord_points, coord_angles);
 toc;
 
+rmpath("..\utils\");
+rmpath("..\antennas\");
+
+writematrix(coord_angle_array, "../data/" + map_name + ".trnt", 'FileType', 'text');
