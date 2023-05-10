@@ -199,7 +199,7 @@ int scanTRNT(float lat, float lon) {
   }  
 }
 
-void updatePhases(angle){
+void updatePhases(int angle){
   float start_angle = PI + (PI / TRNT_N_ANTENNAS);
 
   float position[TRNT_N_ANTENNAS][3];
@@ -212,11 +212,11 @@ void updatePhases(angle){
 
     float direction[3] = {-cos(angle), -sin(angle), 0};
 
-    tau = 0;
+    float tau = 0;
     for(int i = 0; i < 3; i++){
       tau += position[i] * direction[i];
     }
-    ta /= 3e8;
+    tau /= 3e8;
     
     angles[i] = tau * 360 * TRNT_FREQUENCY * PI / 180;
   }
