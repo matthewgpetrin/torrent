@@ -6,7 +6,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <SPI.h>
-#include "trnt_data.h"
+#include "TRNT_canavan.h"
 
 
 SoftwareSerial mySerial(23,22);
@@ -15,7 +15,11 @@ Adafruit_GPS GPS(&mySerial);
 #define GPSECHO  true
 
 uint32_t timer = millis();
-int angles[TRNT_N_ANTENNAS];
+
+int phase_angles[TRNT_N_ANTENNAS];
+
+float tx_coords[TRNT_N_COORDS][2] = TRNT_COORDS;
+int tx_angles[TRNT_N_COORDS] = TRNT_ANGLES;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
@@ -64,7 +68,7 @@ void loop() {
   digitalWrite(27,HIGH);
   digitalWrite(41,HIGH);
 
-  if (Serial.available()>0) {
+  if (Serial.available() > 0) {
     String button = Serial.readString();
     readGPS();
     imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
@@ -81,9 +85,9 @@ void loop() {
   imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
 
   for(int i =0 ;i<8;i++) {
-   digitalWrite(i+24,LOW);
+   digitalWrite(i+24, LOW);
    SPI.transfer(angles[i]);
-   digitalWrite(i+24,HIGH);
+   digitalWrite(i+24, HIGH);
   }
 
   Serial.print(mag.x());
@@ -182,17 +186,17 @@ void printEvent(sensors_event_t* event) {
 int scanTRNT(float lat, float lon) {
   int idx = -1;
   for (int i = 0; i < TRNT_N_COORDS; i++){
-    float coord[2] = trnt::coords[i];
-    if (coord[0] > (lat - TRNT_ERROR) &&
-        coord[0] < (lat + TRNT_ERROR) &&
-        coord[1] < (lon - TRNT_ERROR) &&
-        coord[1] > (lon + TRNT_ERROR)){
+    float coord[2] = tx_coords[i];
+    if (coord[0] > (lat - TRNT_RESOLUTION) &&
+        coord[0] < (lat + TRNT_RESOLUTION) &&
+        coord[1] < (lon - TRNT_RESOLUTION) &&
+        coord[1] > (lon + TRNT_RESOLUTION)){
       idx = i;
     }
   }
 
   if(idx > -1) {
-    return idx;
+    return tx_angles[idx];
   }
   else {
     return 0;
