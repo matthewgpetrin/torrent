@@ -39,7 +39,7 @@ def angle_to_phase(angle, diameter, Nantennas, frequency):
     start_angle = pi + (pi / Nantennas)
     positions = [[diameter / 2 * math.cos(start_angle + (i * 2 * pi / Nantennas)),
                   diameter / 2 * math.sin(start_angle + (i * 2 * pi / Nantennas)),
-                  0] for i in range(Nantennas + 1)]
+                  0] for i in range(Nantennas)]
 
     direction = [-math.cos(angle), -math.sin(angle), 0]
 
