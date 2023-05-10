@@ -15,7 +15,7 @@ Adafruit_GPS GPS(&mySerial);
 #define GPSECHO  true
 
 uint32_t timer = millis();
-int angles[trnt::num_antennas];
+int angles[TRNT_N_ANTENNAS];
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
@@ -69,7 +69,7 @@ void loop() {
     readGPS();
     imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
 
-    ang = scanTRNT(GPS.lat, GPS.lon);
+    int ang = scanTRNT(GPS.lat, GPS.lon);
     updatePhases(ang);
 
     Serial.print(GPS.lat);
@@ -181,12 +181,12 @@ void printEvent(sensors_event_t* event) {
 
 int scanTRNT(float lat, float lon) {
   int idx = -1;
-  for (int i = 0; i < trnt::num_coords; i++){
+  for (int i = 0; i < TRNT_N_COORDS; i++){
     float coord[2] = trnt::coords[i];
-    if (coord[0] > (lat - trnt::error) &&
-        coord[0] < (lat + trnt::error) &&
-        coord[1] < (lon - trnt::error) &&
-        coord[1] > (lon + trnt::error)){
+    if (coord[0] > (lat - TRNT_ERROR) &&
+        coord[0] < (lat + TRNT_ERROR) &&
+        coord[1] < (lon - TRNT_ERROR) &&
+        coord[1] > (lon + TRNT_ERROR)){
       idx = i;
     }
   }
@@ -200,14 +200,14 @@ int scanTRNT(float lat, float lon) {
 }
 
 void updatePhases(angle){
-  float start_angle = PI + (PI / trnt::num_antennas);
+  float start_angle = PI + (PI / TRNT_N_ANTENNAS);
 
-  float position[trnt::num_antennas][3];
-  for(int i = 0; i < trnt::num_antennas; i++){
+  float position[TRNT_N_ANTENNAS][3];
+  for(int i = 0; i < TRNT_N_ANTENNAS; i++){
     
     float position[3] = {
-      trnt::diameter / 2 * cos(start_angle + (i * 2 * PI / trnt::num_antennas)),
-      trnt::diameter / 2 * sin(start_angle + (i * 2 * PI / trnt::num_antennas)),
+      TRNT_DIAMETER / 2 * cos(start_angle + (i * 2 * PI / TRNT_N_ANTENNAS)),
+      TRNT_DIAMETER / 2 * sin(start_angle + (i * 2 * PI / TRNT_N_ANTENNAS)),
       0};
 
     float direction[3] = {-cos(angle), -sin(angle), 0};
@@ -218,6 +218,6 @@ void updatePhases(angle){
     }
     ta /= 3e8;
     
-    angles[i] = tau * 360 * trnt::frequency * PI / 180;
+    angles[i] = tau * 360 * TRNT_FREQUENCY * PI / 180;
   }
 }

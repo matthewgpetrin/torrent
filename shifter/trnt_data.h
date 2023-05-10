@@ -1,15 +1,15 @@
 namespace trnt{
-int num_coords = 600;
+#DEFINE TRNT_N_COORDS 600;
 
-int num_antennas = 8;
+#DEFINE TRNT_N_ANTENNAS 8;
 
-float diameter = 0.125;
+#DEFINE TRNT_DIAMETER 0.125;
 
-float frequency = 2.4e9;
+#DEFINE TRNT_FREQUENCY 2.4e9;
 
-float error = 0.000025;
+#DEFINE TRNT_ERROR 0.000025;
 
-float coords[num_coords][2] = {
+float coords[TRNT_N_COORDS][2] = {
 {40.744   , -74.0259  },
 {40.744025, -74.0259  },
 {40.74405 , -74.0259  },
@@ -611,7 +611,7 @@ float coords[num_coords][2] = {
 {40.74455 , -74.026   },
 {40.744575, -74.026   }};
 
- short int angles[num_coords] = {
+ short int angles[TRNT_N_COORDS] = {
  150,
  150,
  150,
