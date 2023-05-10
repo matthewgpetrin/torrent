@@ -186,11 +186,11 @@ void printEvent(sensors_event_t* event) {
 int scanTRNT(float lat, float lon) {
   int idx = -1;
   for (int i = 0; i < TRNT_N_COORDS; i++){
-    float coord[2] = tx_coords[i];
+    float coord[2] = {tx_coords[i][0], tx_coords[i][1]};
     if (coord[0] > (lat - TRNT_RESOLUTION) &&
         coord[0] < (lat + TRNT_RESOLUTION) &&
-        coord[1] < (lon - TRNT_RESOLUTION) &&
-        coord[1] > (lon + TRNT_RESOLUTION)){
+        coord[1] > (lon - TRNT_RESOLUTION) &&
+        coord[1] < (lon + TRNT_RESOLUTION)){
       idx = i;
     }
   }
