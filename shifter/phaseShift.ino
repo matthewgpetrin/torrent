@@ -8,7 +8,8 @@
 #include <SPI.h>
 #include "TRNT_canavan.h"
 
-// GPS SETUP -----------------------------------------
+// GPS SETUP ------------------------------------------------------------------
+
 #define GPSSerial Serial1
 
 Adafruit_GPS GPS(&GPSSerial);
@@ -18,16 +19,21 @@ Adafruit_GPS GPS(&GPSSerial);
 uint32_t timer = millis();
 
 
-// TRNT SETUP ----------------------------------------
-float tx_coords[TRNT_N_COORDS][2] = TRNT_COORDS;
-int tx_angles[TRNT_N_COORDS] = TRNT_ANGLES;
+// TRNT SETUP -----------------------------------------------------------------
 
-int phase_angles[TRNT_N_ANTENNAS];
+float tx_coords[TRNT_N_COORDS][2] = TRNT_COORDS;
+int   tx_angles[TRNT_N_COORDS] = TRNT_ANGLES;
+
+int   phase_angles[TRNT_N_ANTENNAS];
+
+// MAGNETOMETER SETUP ---------------------------------------------------------
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
+// SETUP FUNCTION -------------------------------------------------------------
+
 void setup() {
-  // SPI INIT
+  // spi init
   Serial.begin(115200);
 
   for (int n = 24; n < 32; n++)
@@ -37,8 +43,7 @@ void setup() {
 
   SPI.setBitOrder(MSBFIRST);
 
-
-  //GPS INIT
+  // gps init
   GPS.begin(9600);
 
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
@@ -47,18 +52,11 @@ void setup() {
 
   Serial.println("Orientation Sensor Test");
 
-
-  /* Initialise the sensor */
-  //if(!bno.begin())
-  //{
-  /* There was a problem detecting the BNO055 ... check your connections */
-  //Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-  //while(1);
-  //}
-  for(int i = 0; i < TRNT_N_COORDS; i++){
-    Serial.print(tx_coords[i][0], 6);
-    Serial.print(", ");
-    Serial.println(tx_coords[i][1], 6);
+  // mag init
+  // ! may not work, needs to be tested
+  if(!bno.begin()) {
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while(1);
   }
 
   delay(1000);
@@ -66,9 +64,12 @@ void setup() {
   bno.setExtCrystalUse(true);
 }
 
-unsigned long previousMillis = 0;
+// MAIN LOOP ------------------------------------------------------------------
+
+unsigned long prev_millis = 0;
 unsigned long interval = 1000; // 1 second interval
 int curr_tx_ang;
+
 
 void loop() {
   digitalWrite(24, HIGH);
@@ -76,14 +77,12 @@ void loop() {
   digitalWrite(26, HIGH);
   digitalWrite(27, HIGH);
   digitalWrite(41, HIGH);
-  
 
-  unsigned long currentMillis = millis();
+  unsigned long curr_millis = millis();
 
-  // ChatGPT says this is a non-interfering delay? Idk but angle would always default without it
-  if (currentMillis - previousMillis >= interval) {
+  if (curr_millis - prev_millis >= interval) {
     curr_tx_ang = scanTRNT(GPS.latitudeDegrees, GPS.longitudeDegrees);
-    previousMillis = currentMillis;
+    prev_millis = curr_millis;
   }
 
   readGPS();
@@ -98,109 +97,19 @@ void loop() {
 
   imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
 
-
-// Nothing works in here
-  if (Serial.available()) {
-    //updatePhases(curr_tx_ang);
-
-    // Serial.print("\nlat: ");
-    // Serial.print(GPS.latitudeDegrees, 6);
-    // Serial.print(", lon: ");
-    // Serial.print(GPS.longitudeDegrees, 6);
-    // Serial.print(", ang: ");
-    // Serial.println(curr_tx_ang);
-  }
-
   for (int i = 0; i < 8; i++) {
     digitalWrite(i + 24, LOW);
     SPI.transfer(phase_angles[i]);
     digitalWrite(i + 24, HIGH);
   }
   
-
-  //Serial.print(mag.x());
-  //Serial.print(mag.y());
-  //Serial.print(mag.z());
+  // ! confirm functional
+  Serial.print(mag.x());
+  Serial.print(mag.y());
+  Serial.print(mag.z());
 }
 
-void readGPS() {
-  char c = GPS.read();
-  // if you want to debug, this is a good time to do it!
-  if ((c) && (GPSECHO)) {
-    Serial.write(c);
-  }
-  // if a sentence is received, we can check the checksum, parse it...
-  if (GPS.newNMEAreceived()) {
-    // a tricky thing here is if we print the NMEA sentence, or data
-    // we end up not listening and catching other sentences!
-    // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
-    //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
-
-    if (!GPS.parse(GPS.lastNMEA()))  // this also sets the newNMEAreceived() flag to false
-      return;                        // we can fail to parse a sentence in which case we should just wait for another
-  }
-
-  // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 2000) {
-    timer = millis();  // reset the timer
-    if (GPS.fix) {
-      Serial.print(GPS.lat);
-      Serial.print(", ");
-      Serial.println(GPS.lon);
-    } else {
-      Serial.println("Getting Fix");
-    }
-  }
-}
-
-void printEvent(sensors_event_t* event) {
-  double x = -1000000, y = -1000000, z = -1000000;  //dumb values, easy to spot problem
-  if (event->type == SENSOR_TYPE_ACCELEROMETER) {
-    Serial.print("Accl:");
-    x = event->acceleration.x;
-    y = event->acceleration.y;
-    z = event->acceleration.z;
-  } else if (event->type == SENSOR_TYPE_ORIENTATION) {
-    Serial.print("Orient:");
-    x = event->orientation.x;
-    y = event->orientation.y;
-    z = event->orientation.z;
-  } else if (event->type == SENSOR_TYPE_MAGNETIC_FIELD) {
-    Serial.print("Mag:");
-    x = event->magnetic.x;
-    y = event->magnetic.y;
-    z = event->magnetic.z;
-  } else if (event->type == SENSOR_TYPE_GYROSCOPE) {
-    Serial.print("Gyro:");
-    x = event->gyro.x;
-    y = event->gyro.y;
-    z = event->gyro.z;
-  } else if (event->type == SENSOR_TYPE_ROTATION_VECTOR) {
-    Serial.print("Rot:");
-    x = event->gyro.x;
-    y = event->gyro.y;
-    z = event->gyro.z;
-  } else if (event->type == SENSOR_TYPE_LINEAR_ACCELERATION) {
-    Serial.print("Linear:");
-    x = event->acceleration.x;
-    y = event->acceleration.y;
-    z = event->acceleration.z;
-  } else if (event->type == SENSOR_TYPE_GRAVITY) {
-    Serial.print("Gravity:");
-    x = event->acceleration.x;
-    y = event->acceleration.y;
-    z = event->acceleration.z;
-  } else {
-    Serial.print("Unk:");
-  }
-
-  Serial.print("\tx= ");
-  Serial.print(x);
-  Serial.print(" |\ty= ");
-  Serial.print(y);
-  Serial.print(" |\tz= ");
-  Serial.println(z);
-}
+// FUNCTIONS ------------------------------------------------------------------
 
 int scanTRNT(float lat, float lon) {
   int idx = -1;
@@ -226,13 +135,6 @@ int scanTRNT(float lat, float lon) {
   }
 }
 
-float decimalDeg(float gps_ang){
-  int degrees = gps_ang / 100;
-  float minutes = gps_ang - (degrees * 100);
-
-  return degrees + (minutes / 60);
-}
-
 void updatePhases(int angle) {
   float start_angle = PI + (PI / TRNT_N_ANTENNAS);
 
@@ -256,3 +158,87 @@ void updatePhases(int angle) {
     phase_angles[i] = tau * 360 * TRNT_FREQUENCY * PI / 180;
   }
 }
+
+void readGPS() {
+  char c = GPS.read();
+
+  if ((c) && (GPSECHO)) 
+    Serial.write(c);
+
+  // check for updates
+  if (GPS.newNMEAreceived()) {
+    
+     if (!GPS.parse(GPS.lastNMEA()))  
+      return;                        
+
+    // print current stats
+    if (millis() - timer > 2000) {
+    timer = millis();  
+      if (GPS.fix) {
+        Serial.print(GPS.lat);
+        Serial.print(", ");
+        Serial.println(GPS.lon);
+      } else {
+        Serial.println("Getting Fix");
+      }
+    }
+  }
+}
+
+void printEvent(sensors_event_t* event) {
+  double x = -1000000, y = -1000000, z = -1000000;  
+  if (event->type == SENSOR_TYPE_ACCELEROMETER) {
+    Serial.print("Accl:");
+    x = event->acceleration.x;
+    y = event->acceleration.y;
+    z = event->acceleration.z;
+  } 
+  else if (event->type == SENSOR_TYPE_ORIENTATION) {
+    Serial.print("Orient:");
+    x = event->orientation.x;
+    y = event->orientation.y;
+    z = event->orientation.z;
+  } 
+  else if (event->type == SENSOR_TYPE_MAGNETIC_FIELD) {
+    Serial.print("Mag:");
+    x = event->magnetic.x;
+    y = event->magnetic.y;
+    z = event->magnetic.z;
+  } 
+  else if (event->type == SENSOR_TYPE_GYROSCOPE) {
+    Serial.print("Gyro:");
+    x = event->gyro.x;
+    y = event->gyro.y;
+    z = event->gyro.z;
+  } 
+  else if (event->type == SENSOR_TYPE_ROTATION_VECTOR) {
+    Serial.print("Rot:");
+    x = event->gyro.x;
+    y = event->gyro.y;
+    z = event->gyro.z;
+  } 
+  else if (event->type == SENSOR_TYPE_LINEAR_ACCELERATION) {
+    Serial.print("Linear:");
+    x = event->acceleration.x;
+    y = event->acceleration.y;
+    z = event->acceleration.z;
+  } 
+  else if (event->type == SENSOR_TYPE_GRAVITY) {
+    Serial.print("Gravity:");
+    x = event->acceleration.x;
+    y = event->acceleration.y;
+    z = event->acceleration.z;
+  } 
+  else {
+    Serial.print("Unk:");
+  }
+
+  Serial.print("\tx= ");
+  Serial.print(x);
+  Serial.print(" |\ty= ");
+  Serial.print(y);
+  Serial.print(" |\tz= ");
+  Serial.println(z);
+}
+
+
