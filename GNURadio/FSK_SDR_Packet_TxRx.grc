@@ -159,7 +159,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1344, 140.0]
+    coordinate: [864, 152.0]
     rotation: 0
     state: true
 - name: repeat
@@ -234,7 +234,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1344, 4.0]
+    coordinate: [1272, 8.0]
     rotation: 0
     state: true
 - name: variable_repetition_encoder_def_0
@@ -512,8 +512,8 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1528, 512.0]
-    rotation: 180
+    coordinate: [1272, 312.0]
+    rotation: 0
     state: true
 - name: blocks_stream_to_tagged_stream_0
   id: blocks_stream_to_tagged_stream
@@ -607,7 +607,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1488, 376.0]
+    coordinate: [920, 312.0]
     rotation: 0
     state: true
 - name: blocks_throttle_0
@@ -841,7 +841,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1320, 496.0]
+    coordinate: [1296, 496.0]
     rotation: 180
     state: enabled
 - name: digital_header_payload_demux_0
@@ -858,7 +858,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     output_symbols: 'False'
-    samp_rate: int(samp_rate)+20000
+    samp_rate: int(samp_rate)
     special_tags: ()
     timing_tag_key: '"burst"'
     trigger_tag_key: '"packet_len"'
@@ -1003,7 +1003,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 888.0]
+    coordinate: [1328, 888.0]
     rotation: 0
     state: true
 - name: pdu_pdu_to_tagged_stream_0_0

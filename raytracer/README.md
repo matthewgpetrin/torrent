@@ -9,12 +9,11 @@ Note that individual raytraces are computationally taxing, and MATLAB is incapab
 ## Structure:
 | Directory   | Contains                                              |
 | :-----------|:------------------------------------------------------|
-| **/data/**  | Program output tables, figures, and files             |
-| **/maps/**  | Maps to be used by the program                        | 
-| **/src/**   | Project critical and specialized functions and scripts| 
-| **/tests/** | Tests of currently relevant files and functions       |
-| **/trash/** | Old code for reference (may or may not work)          | 
-| **/utils/** | Frequently-used general-use functions                 |  
+| **/antennas/**  | MATLAB functions to create antenna objects            |
+| **/data/**      | Program output tables, figures, and files             |
+| **/maps/**      | Maps to be used by the program                        | 
+| **/src/**       | Project critical and specialized functions and scripts| 
+| **/util/**      | Frequently-used general-use functions                 |
   
 ## Functions:
 **dBmToWatts(dBmMatrix)**  
